@@ -1,0 +1,10 @@
+root: true
+sources:
+  pip: true
+python:
+  virtual_env_dir: .venv
+ignored:
+  pip:
+    - pip
+allowed:
+  - bsd-3-clause

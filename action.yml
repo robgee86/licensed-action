@@ -3,8 +3,11 @@ description: Checks dependency licenses with licensed in a Docker image, caching
 author: robgee86
 
 inputs:
+  ecosystem:
+    description: Ecosystem image to run, go, node, python, gradle, cocoapods or swift, the base image is used when empty
+    default: ""
   dockerfile:
-    description: Dockerfile extending the base image with the repository toolchain, the base image is used when empty
+    description: Dockerfile extending one of the images, built and run in place of the ecosystem image
     default: ""
   context:
     description: Build context of the dockerfile
@@ -16,7 +19,7 @@ inputs:
     description: Shell commands run in the container before licensed, such as installing or generating dependencies
     default: ""
   command:
-    description: Shell commands replacing the default licensed cache and licensed status
+    description: Shell command replacing the image default, licensed cache and licensed status in the published images
     default: ""
   cache-key-files:
     description: Newline separated globs of the files whose content keys the /cache directory, caching is off when empty
@@ -62,13 +65,21 @@ runs:
       id: licensed
       shell: bash
       env:
-        LICENSED_IMAGE: ${{ inputs.dockerfile != '' && 'licensed-action:local' || 'ghcr.io/robgee86/licensed-action:v0.1.0' }} # x-release-please-version
+        VERSION: v0.1.0 # x-release-please-version
+        ECOSYSTEM: ${{ inputs.ecosystem }}
+        DOCKERFILE: ${{ inputs.dockerfile }}
         LICENSED_CACHE_DIR: ${{ inputs.cache-key-files != '' && format('{0}/licensed-cache', runner.temp) || '' }}
         LICENSED_SETUP: ${{ inputs.setup }}
         LICENSED_COMMAND: ${{ inputs.command }}
         LICENSED_GITHUB_TOKEN: ${{ inputs.github-token }}
         LICENSED_WORKING_DIRECTORY: ${{ inputs.working-directory }}
       run: |
+        case "$ECOSYSTEM" in
+          "") image="ghcr.io/robgee86/licensed-action:$VERSION" ;;
+          go | node | python | gradle | cocoapods | swift) image="ghcr.io/robgee86/licensed-$ECOSYSTEM-action:$VERSION" ;;
+          *) echo "::error::Unknown ecosystem $ECOSYSTEM, use go, node, python, gradle, cocoapods or swift"; exit 1 ;;
+        esac
+        export LICENSED_IMAGE="$([ -n "$DOCKERFILE" ] && echo licensed-action:local || echo "$image")"
         if "$GITHUB_ACTION_PATH/scripts/run.sh" 2>&1 | tee "$RUNNER_TEMP/licensed.log"; then
           echo "outcome=success" >> "$GITHUB_OUTPUT"
         else

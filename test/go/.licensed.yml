@@ -1,0 +1,5 @@
+root: true
+sources:
+  go: true
+allowed:
+  - bsd-3-clause

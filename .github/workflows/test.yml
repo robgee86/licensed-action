@@ -8,16 +8,45 @@ permissions:
   contents: read
 
 jobs:
-  # Runs the action from this checkout on a fixture whose committed records must stay current
-  node:
-    runs-on: ubuntu-24.04
+  # Runs the action from this checkout on each fixture, whose committed records must stay current
+  fixture:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+        ecosystem: [go, node, python, gradle, swift]
+        include:
+          - ecosystem: go
+            cache-key-files: test/go/go.sum
+          - ecosystem: node
+            setup: npm ci --ignore-scripts --omit=dev
+            cache-key-files: test/node/package-lock.json
+          - ecosystem: python
+            setup: UV_PROJECT_ENVIRONMENT=.venv uv sync --frozen --no-dev --no-install-project && uv pip install -q --python .venv pip
+            cache-key-files: test/python/uv.lock
+          - ecosystem: gradle
+            cache-key-files: test/gradle/build.gradle
+          - ecosystem: swift
+            setup: swift package resolve
+            cache-key-files: test/swift/Package.resolved
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
 
+      - uses: docker/setup-buildx-action@v3
+
+      # Tagged with the version the action runs, so it runs these images instead of pulling published ones
+      - name: Build the images of this commit
+        env:
+          TARGET: ${{ matrix.ecosystem }}
+          SCOPE: ${{ matrix.ecosystem }}-${{ matrix.runner }}
+        run: |
+          TAG="$(grep -m1 -oE 'v[0-9]+\.[0-9]+\.[0-9]+' action.yml)" docker buildx bake --load \
+            --set "*.cache-from=type=gha,scope=$SCOPE" --set "*.cache-to=type=gha,scope=$SCOPE,mode=max" "$TARGET"
+
       - uses: ./
         with:
-          dockerfile: test/node/Dockerfile
-          context: test/node
-          working-directory: test/node
-          setup: npm ci --ignore-scripts --omit=dev
-          cache-key-files: test/node/package-lock.json
+          ecosystem: ${{ matrix.ecosystem }}
+          working-directory: test/${{ matrix.ecosystem }}
+          setup: ${{ matrix.setup }}
+          cache-key-files: ${{ matrix.cache-key-files }}

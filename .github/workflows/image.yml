@@ -1,35 +1,22 @@
-name: Image
+name: Images
 on:
-  pull_request:
-    paths: [image/**, .github/workflows/image.yml]
-  push:
-    branches: [main]
-    paths: [image/**, .github/workflows/image.yml]
   workflow_call:
     inputs:
       version:
         description: Release tag to publish, such as v1.2.3
         type: string
+        required: true
 
 permissions:
   contents: read
   packages: write
-
-env:
-  IMAGE: ghcr.io/${{ github.repository }}
-  # Pull requests only prove the image builds, main publishes edge and releases publish their version
-  PUBLISH: ${{ github.event_name == 'push' }}
 
 jobs:
   # Each platform builds on its own native runner, compiling licensee's native gems under emulation is slow
   build:
     strategy:
       matrix:
-        include:
-          - platform: linux/amd64
-            runner: ubuntu-24.04
-          - platform: linux/arm64
-            runner: ubuntu-24.04-arm
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
@@ -37,47 +24,34 @@ jobs:
       - uses: docker/setup-buildx-action@v3
 
       - uses: docker/login-action@v3
-        if: env.PUBLISH == 'true'
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Each platform is pushed by digest, the publish job joins them under the tags
-      - id: build
-        uses: docker/build-push-action@v6
-        with:
-          context: images/base
-          platforms: ${{ matrix.platform }}
-          outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=${{ env.PUBLISH }}
-          cache-from: type=gha,scope=${{ matrix.platform }}
-          cache-to: type=gha,scope=${{ matrix.platform }},mode=max
-
-      - name: Export the digest
-        if: env.PUBLISH == 'true'
-        run: |
-          mkdir -p "$RUNNER_TEMP/digests"
-          touch "$RUNNER_TEMP/digests/${DIGEST#sha256:}"
+      - name: Push the images by digest
         env:
-          DIGEST: ${{ steps.build.outputs.digest }}
+          REGISTRY: ghcr.io/${{ github.repository_owner }}
+          PUSH_BY_DIGEST: "true"
+        run: docker buildx bake --metadata-file "$RUNNER_TEMP/${{ matrix.runner }}.json"
 
       - uses: actions/upload-artifact@v4
-        if: env.PUBLISH == 'true'
         with:
-          name: digest-${{ strategy.job-index }}
-          path: ${{ runner.temp }}/digests/*
+          name: metadata-${{ matrix.runner }}
+          path: ${{ runner.temp }}/${{ matrix.runner }}.json
           retention-days: 1
 
-  publish:
-    if: github.event_name == 'push'
+  tag:
     needs: build
     runs-on: ubuntu-24.04
     steps:
+      - uses: actions/checkout@v4
+
       - uses: actions/download-artifact@v4
         with:
-          pattern: digest-*
+          pattern: metadata-*
           merge-multiple: true
-          path: ${{ runner.temp }}/digests
+          path: ${{ runner.temp }}/metadata
 
       - uses: docker/setup-buildx-action@v3
 
@@ -87,21 +61,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Release v1.2.3 publishes v1.2.3, v1.2 and v1
-      - id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.IMAGE }}
-          tags: |
-            type=edge,enable=${{ inputs.version == '' }}
-            type=semver,pattern=v{{version}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
-            type=semver,pattern=v{{major}}.{{minor}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
-            type=semver,pattern=v{{major}},value=${{ inputs.version }},enable=${{ inputs.version != '' }}
-
-      - name: Publish the multi-platform image
-        working-directory: ${{ runner.temp }}/digests
-        run: |
-          mapfile -t tags < <(jq -r '.tags[] | "--tag", .' <<< "$DOCKER_METADATA_OUTPUT_JSON")
-          digests=()
-          for digest in *; do digests+=("$IMAGE@sha256:$digest"); done
-          docker buildx imagetools create "${tags[@]}" "${digests[@]}"
+      - name: Tag the multi-platform images
+        env:
+          VERSION: ${{ inputs.version }}
+        run: .github/scripts/tag-images.sh "$RUNNER_TEMP"/metadata/*.json

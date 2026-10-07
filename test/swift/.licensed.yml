@@ -1,0 +1,5 @@
+root: true
+sources:
+  swift: true
+allowed:
+  - apache-2.0

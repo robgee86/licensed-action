@@ -10,9 +10,12 @@ RUN set -ex; \
     platform="debian12$([ "$TARGETARCH" = arm64 ] && echo -aarch64 || true)"; \
     mkdir /opt/swift; \
     curl -fsSL "https://download.swift.org/swift-${SWIFT_VERSION}-release/${platform}/swift-${SWIFT_VERSION}-RELEASE/swift-${SWIFT_VERSION}-RELEASE-${platform}.tar.gz" \
-      | tar -xz --strip-components=1 -C /opt/swift
+      | tar -xz --strip-components=1 -C /opt/swift; \
+    # licensed only runs swift package, the debugger, editor and documentation tools are dropped
+    cd /opt/swift/usr; \
+    rm -rf bin/lldb* lib/liblldb* bin/sourcekit-lsp lib/libsourcekitdInProc* bin/clangd bin/docc lib/swift_static share/doc
 
-FROM ghcr.io/robgee86/licensed-action:v0
+FROM base
 
 # SwiftPM compiles Package.swift before describing it, so the toolchain needs a C library and a linker
 RUN set -ex; \

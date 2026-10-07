@@ -1,7 +1,7 @@
-# The JDK the Android Gradle plugin needs and every SDK package it would otherwise install itself, printing to the
-# output licensed parses: the platform matching compileSdk, plus build-tools and platform-tools for older plugins
+# The JDK the Android Gradle plugin needs, and the SDK packages to preinstall: older plugins install their own and
+# print to the output licensed parses, so a setup such as ./gradlew -q help lets them do it before licensed runs
 ARG JDK=17
-ARG SDK_PACKAGES="platforms;android-36"
+ARG SDK_PACKAGES="platforms;android-36 platform-tools"
 
 FROM eclipse-temurin:${JDK}-jdk AS jdk
 
@@ -18,7 +18,7 @@ RUN set -ex; \
     yes | /tmp/cmdline-tools/bin/sdkmanager --sdk_root=/opt/android-sdk --licenses > /dev/null; \
     /tmp/cmdline-tools/bin/sdkmanager --sdk_root=/opt/android-sdk ${SDK_PACKAGES}
 
-FROM ghcr.io/robgee86/licensed-action:v0
+FROM base
 
 COPY --from=jdk /opt/java/openjdk /opt/java/openjdk
 COPY --from=sdk /opt/android-sdk /opt/android-sdk

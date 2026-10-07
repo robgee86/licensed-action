@@ -1,6 +1,6 @@
 ARG COCOAPODS_VERSION=1.16.2
 
-FROM ghcr.io/robgee86/licensed-action:v0 AS gems
+FROM base AS gems
 
 ARG COCOAPODS_VERSION
 # licensed enumerates pods through the cocoapods-dependencies-list plugin, ffi needs to be compiled
@@ -13,7 +13,7 @@ RUN set -ex; \
 COPY dependencies-list-version.patch /tmp/
 RUN patch -p1 --forward -d /var/lib/gems/*/gems/cocoapods-dependencies-list-1.0.0 < /tmp/dependencies-list-version.patch
 
-FROM ghcr.io/robgee86/licensed-action:v0
+FROM base
 
 RUN set -ex; \
     apt-get update; \

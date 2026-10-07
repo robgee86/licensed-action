@@ -1,0 +1,5 @@
+root: true
+sources:
+  gradle: true
+allowed:
+  - apache-2.0
