@@ -47,7 +47,7 @@ jobs:
       - id: build
         uses: docker/build-push-action@v6
         with:
-          context: image
+          context: images/base
           platforms: ${{ matrix.platform }}
           outputs: type=image,name=${{ env.IMAGE }},push-by-digest=true,name-canonical=true,push=${{ env.PUBLISH }}
           cache-from: type=gha,scope=${{ matrix.platform }}

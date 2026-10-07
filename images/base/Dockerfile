@@ -46,7 +46,9 @@ RUN set -ex; \
 
 COPY --from=builder /var/lib/gems /var/lib/gems
 COPY --from=builder /usr/local/bin/licensed /usr/local/bin/licensed
+COPY --chmod=755 entrypoint.sh /usr/local/bin/licensed-action
 
 WORKDIR /src
 
-ENTRYPOINT ["licensed"]
+# Images extending this one keep the entrypoint and set their default command with CMD
+ENTRYPOINT ["licensed-action"]
