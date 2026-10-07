@@ -7,9 +7,9 @@ licensed runs each ecosystem's own tools (`go list`, `npm list`, `pip`, Gradle, 
 | Image | Adds to the base image |
 | --- | --- |
 | `ghcr.io/robgee86/licensed-action` | licensed, licensee and the [fixes](#patched-licensed) the upstream release lacks |
-| `ghcr.io/robgee86/licensed-go-action` | Go, which fetches the toolchain a `go.mod` asks for |
-| `ghcr.io/robgee86/licensed-node-action` | Node.js and npm, with yarn and pnpm through corepack |
-| `ghcr.io/robgee86/licensed-python-action` | uv, Python 3.13 and a C toolchain, uv installs any other Python a project asks for |
+| `ghcr.io/robgee86/licensed-go-action` | Go, which can fetch the newer toolchain a `go.mod` asks for |
+| `ghcr.io/robgee86/licensed-node-action` | Node.js and npm, with yarn and pnpm shims through corepack, validated with npm only |
+| `ghcr.io/robgee86/licensed-python-action` | uv, Python 3.13 and a C toolchain, uv can download another Python on each run |
 | `ghcr.io/robgee86/licensed-gradle-action` | JDK 17 and the Android SDK |
 | `ghcr.io/robgee86/licensed-cocoapods-action` | CocoaPods with the cocoapods-dependencies-list plugin |
 | `ghcr.io/robgee86/licensed-swift-action` | The Swift toolchain |
