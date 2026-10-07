@@ -43,7 +43,6 @@ The action restores the cache directory, runs `licensed status` in the image, an
 | `setup` | | Shell commands run in the container before licensed, such as `npm ci` or `pod install`, replacing the `LICENSED_SETUP` of the image |
 | `cache-key-files` | | Newline separated globs of the files whose content keys the cache, caching is off when empty |
 | `github-token` | | Token for private dependencies hosted on GitHub |
-| `fix-hint` | `run licensed cache locally` | How developers fix the records, shown in the summary |
 
 ## Ecosystems
 

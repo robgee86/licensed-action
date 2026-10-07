@@ -24,9 +24,6 @@ inputs:
   github-token:
     description: Token granting access to private dependencies hosted on GitHub
     default: ""
-  fix-hint:
-    description: How developers fix the records locally, shown in the summary
-    default: run licensed cache locally
 
 runs:
   using: composite
@@ -85,7 +82,6 @@ runs:
       env:
         LICENSED_LOG: ${{ runner.temp }}/licensed.log
         LICENSED_OUTCOME: ${{ steps.licensed.outputs.outcome }}
-        LICENSED_FIX_HINT: ${{ inputs.fix-hint }}
       run: '"$GITHUB_ACTION_PATH/scripts/report.sh"'
 
 branding:

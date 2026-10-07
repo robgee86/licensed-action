@@ -4,7 +4,6 @@ set -uo pipefail
 
 : "${LICENSED_LOG:?LICENSED_LOG must point to the licensed output}"
 : "${LICENSED_OUTCOME:?LICENSED_OUTCOME must be the outcome of the licensed step}"
-fix_hint="${LICENSED_FIX_HINT:-run licensed cache locally}"
 summary="${GITHUB_STEP_SUMMARY:-/dev/stdout}"
 
 # Prints each blank line separated block listed under "Errors:", NUL terminated
@@ -43,7 +42,7 @@ stale_level="$([ "$LICENSED_OUTCOME" = "success" ] && echo warning || echo error
   echo "### Dependency licenses"
   echo
   if [ "${#errors[@]}" -gt 0 ]; then
-    echo "❌ These dependencies need attention, $fix_hint, then review and commit the records."
+    echo "❌ These dependencies need attention, update the records with licensed cache, then review and commit them."
     echo
     for block in "${errors[@]}"; do printf '```text\n%s\n```\n\n' "$block"; done
   elif [ "$LICENSED_OUTCOME" != "success" ] && [ "${#stale[@]}" -eq 0 ]; then
@@ -57,13 +56,13 @@ stale_level="$([ "$LICENSED_OUTCOME" = "success" ] && echo warning || echo error
     echo
     echo "#### Stale records"
     echo
-    echo "These records belong to dependencies no longer used, $fix_hint to remove them."
+    echo "These records belong to dependencies no longer used, licensed cache removes them."
     echo
     printf -- '- `%s`\n' "${stale[@]}"
   fi
 } >> "$summary"
 
 for block in "${errors[@]}"; do annotate error "$block"; done
-for record in "${stale[@]}"; do annotate "$stale_level file=$record" "Stale dependency record, $fix_hint to remove it"; done
+for record in "${stale[@]}"; do annotate "$stale_level file=$record" "Stale dependency record, licensed cache removes it"; done
 
 [ "$LICENSED_OUTCOME" = "success" ]
