@@ -1,5 +1,5 @@
 name: licensed
-description: Checks dependency licenses with licensed in a Docker image, caching the ecosystem tooling between runs
+description: Checks the committed dependency license records with licensed status in a Docker image, caching the ecosystem tooling between runs
 author: robgee86
 
 inputs:
@@ -16,10 +16,7 @@ inputs:
     description: Folder holding the licensed configuration, relative to the workspace
     default: "."
   setup:
-    description: Shell commands run in the container before licensed, such as installing or generating dependencies
-    default: ""
-  command:
-    description: Shell command replacing the image default, licensed cache and licensed status in the published images
+    description: Shell commands run in the container before licensed status, replacing the LICENSED_SETUP of the image
     default: ""
   cache-key-files:
     description: Newline separated globs of the files whose content keys the /cache directory, caching is off when empty
@@ -27,9 +24,6 @@ inputs:
   github-token:
     description: Token granting access to private dependencies hosted on GitHub
     default: ""
-  outdated-records:
-    description: How records changed by licensed cache are reported, error or warning
-    default: error
   fix-hint:
     description: How developers fix the records locally, shown in the summary
     default: run licensed cache locally
@@ -70,7 +64,6 @@ runs:
         DOCKERFILE: ${{ inputs.dockerfile }}
         LICENSED_CACHE_DIR: ${{ inputs.cache-key-files != '' && format('{0}/licensed-cache', runner.temp) || '' }}
         LICENSED_SETUP: ${{ inputs.setup }}
-        LICENSED_COMMAND: ${{ inputs.command }}
         LICENSED_GITHUB_TOKEN: ${{ inputs.github-token }}
         LICENSED_WORKING_DIRECTORY: ${{ inputs.working-directory }}
       run: |
@@ -80,7 +73,7 @@ runs:
           *) echo "::error::Unknown ecosystem $ECOSYSTEM, use go, node, python, gradle, cocoapods or swift"; exit 1 ;;
         esac
         export LICENSED_IMAGE="$([ -n "$DOCKERFILE" ] && echo licensed-action:local || echo "$image")"
-        if "$GITHUB_ACTION_PATH/scripts/run.sh" 2>&1 | tee "$RUNNER_TEMP/licensed.log"; then
+        if "$GITHUB_ACTION_PATH/scripts/run.sh" licensed status 2>&1 | tee "$RUNNER_TEMP/licensed.log"; then
           echo "outcome=success" >> "$GITHUB_OUTPUT"
         else
           echo "outcome=failure" >> "$GITHUB_OUTPUT"
@@ -92,7 +85,6 @@ runs:
       env:
         LICENSED_LOG: ${{ runner.temp }}/licensed.log
         LICENSED_OUTCOME: ${{ steps.licensed.outputs.outcome }}
-        LICENSED_OUTDATED: ${{ inputs.outdated-records }}
         LICENSED_FIX_HINT: ${{ inputs.fix-hint }}
       run: '"$GITHUB_ACTION_PATH/scripts/report.sh"'
 

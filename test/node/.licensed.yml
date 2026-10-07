@@ -1,4 +1,5 @@
 root: true
+stale_records_action: error
 sources:
   npm: true
 allowed:

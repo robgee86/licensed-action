@@ -50,3 +50,31 @@ jobs:
           working-directory: test/${{ matrix.ecosystem }}
           setup: ${{ matrix.setup }}
           cache-key-files: ${{ matrix.cache-key-files }}
+
+  # The action must fail when a record is missing or belongs to a removed dependency
+  failures:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build the images of this commit
+        run: |
+          TAG="$(grep -m1 -oE 'v[0-9]+\.[0-9]+\.[0-9]+' action.yml)" docker buildx bake --load \
+            --set "*.cache-from=type=gha,scope=go-ubuntu-24.04" go
+
+      - name: Remove a record
+        run: git mv test/go/.licenses/go/github.com/google/uuid.dep.yml test/go/.licenses/go/github.com/google/gone.dep.yml
+
+      - id: check
+        uses: ./
+        continue-on-error: true
+        with:
+          ecosystem: go
+          working-directory: test/go
+
+      - name: Expect the missing and the stale record to fail the check
+        env:
+          OUTCOME: ${{ steps.check.outcome }}
+        run: test "$OUTCOME" = failure
