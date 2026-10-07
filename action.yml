@@ -1,0 +1,90 @@
+name: licensed
+description: Checks dependency licenses with licensed in a Docker image, caching the ecosystem tooling between runs
+author: robgee86
+
+inputs:
+  dockerfile:
+    description: Dockerfile extending the base image with the repository toolchain, the base image is used when empty
+    default: ""
+  context:
+    description: Build context of the dockerfile
+    default: "."
+  working-directory:
+    description: Folder holding the licensed configuration, relative to the workspace
+    default: "."
+  setup:
+    description: Shell commands run in the container before licensed, such as installing or generating dependencies
+    default: ""
+  command:
+    description: Shell commands replacing the default licensed cache and licensed status
+    default: ""
+  cache-key-files:
+    description: Newline separated globs of the files whose content keys the /cache directory, caching is off when empty
+    default: ""
+  github-token:
+    description: Token granting access to private dependencies hosted on GitHub
+    default: ""
+  outdated-records:
+    description: How records changed by licensed cache are reported, error or warning
+    default: error
+  fix-hint:
+    description: How developers fix the records locally, shown in the summary
+    default: run licensed cache locally
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Docker Buildx
+      if: inputs.dockerfile != ''
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build the licensed image
+      if: inputs.dockerfile != ''
+      uses: docker/build-push-action@v6
+      with:
+        context: ${{ inputs.context }}
+        file: ${{ inputs.dockerfile }}
+        tags: licensed-action:local
+        load: true
+        cache-from: type=gha,scope=licensed-action
+        cache-to: type=gha,scope=licensed-action,mode=max
+
+    # A stale cache is safe to restore, the ecosystem tools refresh whatever no longer matches
+    - name: Cache the tooling
+      if: inputs.cache-key-files != ''
+      uses: actions/cache@v4
+      with:
+        path: ${{ runner.temp }}/licensed-cache
+        key: licensed-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles(inputs.cache-key-files) }}
+        restore-keys: licensed-${{ runner.os }}-${{ runner.arch }}-
+
+    - name: Run licensed
+      id: licensed
+      shell: bash
+      env:
+        LICENSED_IMAGE: ${{ inputs.dockerfile != '' && 'licensed-action:local' || 'ghcr.io/robgee86/licensed-action:v0.1.0' }} # x-release-please-version
+        LICENSED_CACHE_DIR: ${{ inputs.cache-key-files != '' && format('{0}/licensed-cache', runner.temp) || '' }}
+        LICENSED_SETUP: ${{ inputs.setup }}
+        LICENSED_COMMAND: ${{ inputs.command }}
+        LICENSED_GITHUB_TOKEN: ${{ inputs.github-token }}
+        LICENSED_WORKING_DIRECTORY: ${{ inputs.working-directory }}
+      run: |
+        if "$GITHUB_ACTION_PATH/scripts/run.sh" 2>&1 | tee "$RUNNER_TEMP/licensed.log"; then
+          echo "outcome=success" >> "$GITHUB_OUTPUT"
+        else
+          echo "outcome=failure" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Report
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        LICENSED_LOG: ${{ runner.temp }}/licensed.log
+        LICENSED_OUTCOME: ${{ steps.licensed.outputs.outcome }}
+        LICENSED_OUTDATED: ${{ inputs.outdated-records }}
+        LICENSED_FIX_HINT: ${{ inputs.fix-hint }}
+      run: '"$GITHUB_ACTION_PATH/scripts/report.sh"'
+
+branding:
+  icon: check-circle
+  color: green

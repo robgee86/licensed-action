@@ -1,0 +1,14 @@
+ActiveSupport 7 serializes a Pod::Version field by field and recurses forever, its string form is what licensed reads
+
+--- a/lib/cocoapods_dependencies_list/pod/command/dependencies.rb
++++ b/lib/cocoapods_dependencies_list/pod/command/dependencies.rb
+@@ -64,7 +64,8 @@
+       def requested_fields_from_spec(spec)
+         @fields.reduce({}) do |accum, field|
+           field = field.to_sym
+-          accum[field] = spec.respond_to?(field) ? spec.send(field) : nil
++          value = spec.respond_to?(field) ? spec.send(field) : nil
++          accum[field] = value.is_a?(Pod::Version) ? value.to_s : value
+           accum
+         end
+       end

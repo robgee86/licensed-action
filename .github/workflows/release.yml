@@ -1,0 +1,45 @@
+name: Release
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-24.04
+    outputs:
+      created: ${{ steps.release.outputs.release_created }}
+      tag: ${{ steps.release.outputs.tag_name }}
+      major: ${{ steps.release.outputs.major }}
+      minor: ${{ steps.release.outputs.minor }}
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@v4
+
+  # Tags pushed with the workflow token trigger no workflow, so the release publishes its image here
+  image:
+    needs: release-please
+    if: needs.release-please.outputs.created == 'true'
+    uses: ./.github/workflows/image.yml
+    with:
+      version: ${{ needs.release-please.outputs.tag }}
+
+  # vX and vX.Y follow the latest release, only once its image exists
+  tags:
+    needs: [release-please, image]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Move the major and minor tags
+        env:
+          MAJOR: v${{ needs.release-please.outputs.major }}
+          MINOR: v${{ needs.release-please.outputs.major }}.${{ needs.release-please.outputs.minor }}
+        run: |
+          git tag -f "$MAJOR"
+          git tag -f "$MINOR"
+          git push -f origin "$MAJOR" "$MINOR"

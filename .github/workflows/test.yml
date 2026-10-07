@@ -1,0 +1,23 @@
+name: Test
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  # Runs the action from this checkout on a fixture whose committed records must stay current
+  node:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./
+        with:
+          dockerfile: test/node/Dockerfile
+          context: test/node
+          working-directory: test/node
+          setup: npm ci --ignore-scripts --omit=dev
+          cache-key-files: test/node/package-lock.json

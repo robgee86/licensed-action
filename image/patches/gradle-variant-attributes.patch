@@ -1,0 +1,21 @@
+Android resolves dependencies by variant attributes, which the configurations licensed copies for its report lack
+
+--- a/lib/licensed/sources/gradle.rb
++++ b/lib/licensed/sources/gradle.rb
+@@ -171,6 +171,16 @@
+                   }
+                 }
+ 
++                // Android resolves dependencies by variant attributes, which the licensed copies of the configurations lack
++                gradle.projectsEvaluated {
++                  allprojects {
++                    configurations.matching { it.name.startsWith("licensed") }.all { copy ->
++                      def original = configurations.findByName(copy.name.substring("licensed".length()))
++                      original?.attributes?.keySet()?.each { key -> copy.attributes.attribute(key, original.attributes.getAttribute(key)) }
++                    }
++                  }
++                }
++
+                 allprojects {
+                   configurations {
+                     #{configuration_dsl.join("\n") }

@@ -1,0 +1,35 @@
+Package.resolved moved its pins to the top level in format version 2, Swift 5.6, licensed reads only version 1
+
+--- a/lib/licensed/sources/swift.rb
++++ b/lib/licensed/sources/swift.rb
+@@ -13,9 +13,10 @@
+ 
+       def enumerate_dependencies
+         pins.map { |pin|
+-          name = pin["package"]
++          name = pin["package"] || pin["identity"]
++          url = pin["repositoryURL"] || pin["location"]
+           version = pin.dig("state", "version")
+-          path = dependency_path_for_url(pin["repositoryURL"])
++          path = dependency_path_for_url(url)
+           error = "Unable to determine project path from #{url}" unless path
+ 
+           Dependency.new(
+@@ -25,7 +26,7 @@
+             errors: Array(error),
+             metadata: {
+               "type"      => Swift.type,
+-              "homepage"  => homepage_for_url(pin["repositoryURL"])
++              "homepage"  => homepage_for_url(url)
+             }
+           )
+         }
+@@ -38,7 +39,7 @@
+ 
+         @pins = begin
+           json = JSON.parse(File.read(package_resolved_file_path))
+-          json.dig("object", "pins")
++          json.dig("object", "pins") || json["pins"]
+         rescue => e
+           message = "Licensed was unable to read the Package.resolved file. Error: #{e.message}"
+           raise Licensed::Sources::Source::Error, message

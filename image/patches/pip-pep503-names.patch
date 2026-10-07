@@ -1,0 +1,17 @@
+licensed matches a package to its .dist-info folder folding only dashes into underscores, PEP 503 folds dots too
+
+--- a/lib/licensed/sources/pip.rb
++++ b/lib/licensed/sources/pip.rb
+@@ -51,10 +51,10 @@
+       # Returns the package's .dist-info path, matching case-insensitively to support
+       # filesystems where installed wheel metadata directories may be lowercase.
+       def package_dist_info_path(package)
+-        expected = "#{package["Name"].tr("-", "_")}-#{package["Version"]}.dist-info".downcase
++        expected = "#{package["Name"].gsub(/[-_.]+/, "_")}-#{package["Version"]}.dist-info".downcase
+         dist_infos = Dir.glob(File.join(package["Location"], "*.dist-info"))
+         dist_infos.find { |path| File.basename(path).downcase == expected } ||
+-          File.join(package["Location"], "#{package["Name"].tr("-", "_")}-#{package["Version"]}.dist-info")
++          File.join(package["Location"], "#{package["Name"].gsub(/[-_.]+/, "_")}-#{package["Version"]}.dist-info")
+       end
+ 
+       # Returns parsed information for all packages used by the project,
