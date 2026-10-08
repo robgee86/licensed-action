@@ -1,5 +1,5 @@
-# The JDK the Android Gradle plugin needs, and the SDK packages to preinstall: older plugins install their own and
-# print to the output licensed parses, so a setup such as ./gradlew -q help lets them do it before licensed runs
+# Bake builds one image per JDK, the SDK packages are preinstalled: older plugins install the missing ones and print
+# to the output licensed parses, so a setup such as ./gradlew -q help lets them do it before licensed runs
 ARG JDK=17
 ARG SDK_PACKAGES="platforms;android-36 platform-tools"
 

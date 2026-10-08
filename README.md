@@ -58,7 +58,7 @@ The job fails when a record is missing, outdated, left over from a removed depen
 | `go` | | `go.sum` |
 | `node` | `npm ci --ignore-scripts --omit=dev` | `package-lock.json` |
 | `python` | `UV_PROJECT_ENVIRONMENT=.venv uv sync --frozen --no-dev --no-install-project && uv pip install --python .venv pip` | `uv.lock` |
-| `gradle` | | `**/*.gradle*` |
+| `gradle-jdk17`, `gradle-jdk21` | | `**/*.gradle*` |
 | `cocoapods` | `pod install` | `Podfile.lock` |
 | `swift` | `swift package resolve` | `Package.resolved` |
 
