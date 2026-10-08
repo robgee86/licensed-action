@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.0](https://github.com/robgee86/licensed-action/compare/v0.3.0...v0.4.0) (2026-10-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* mount at /src, share one cache volume and drop the -action image suffix ([#10](https://github.com/robgee86/licensed-action/issues/10))
+
+### Features
+
+* keep the installed dependencies in the cache instead of the working tree ([#8](https://github.com/robgee86/licensed-action/issues/8)) ([7d06c3f](https://github.com/robgee86/licensed-action/commit/7d06c3f3b9c352da3e2fbdfd207425ff89b960e1))
+* mount at /src, share one cache volume and drop the -action image suffix ([#10](https://github.com/robgee86/licensed-action/issues/10)) ([83dc62b](https://github.com/robgee86/licensed-action/commit/83dc62b47e5de2d52e094f19fb96dfb2c6712d8a))
+
 ## [0.3.0](https://github.com/robgee86/licensed-action/compare/v0.2.0...v0.3.0) (2026-10-08)
 
 
