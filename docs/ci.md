@@ -28,6 +28,8 @@ The action restores a cache, runs `licensed-check` in the image of your ecosyste
 
 The container keeps the package manager caches, and anything a repository stores there, in `/cache`, which the action saves between runs keyed by the content of `cache-key-files`. When those files change, the closest earlier cache is restored, so whatever lives there must be safe to reuse.
 
+The cache also holds the folder where the `node`, `python`, `cocoapods` and `swift` ecosystems install the dependencies licensed reads, `node_modules`, `.venv`, `Pods` or `.build` in `working-directory`. With `dockerfile`, set `ecosystem` too so the action knows that folder.
+
 ## Private dependencies
 
 Pass a token that can read them, for example a secret:
