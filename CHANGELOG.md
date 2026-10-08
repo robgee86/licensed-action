@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.3.0](https://github.com/robgee86/licensed-action/compare/v0.2.0...v0.3.0) (2026-10-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* ship the Gradle image per JDK, as gradle-jdk17 and gradle-jdk21, replacing gradle ([#6](https://github.com/robgee86/licensed-action/issues/6))
+* name record files without the colon of Gradle coordinates ([#5](https://github.com/robgee86/licensed-action/issues/5))
+
+### Features
+
+* ship the Gradle image per JDK, as gradle-jdk17 and gradle-jdk21, replacing gradle ([#6](https://github.com/robgee86/licensed-action/issues/6)) ([e9cc9b6](https://github.com/robgee86/licensed-action/commit/e9cc9b6ca609b375c5d1edc8b120a9e78e4ec96c))
+
+
+### Bug Fixes
+
+* name record files without the colon of Gradle coordinates ([#5](https://github.com/robgee86/licensed-action/issues/5)) ([01e7589](https://github.com/robgee86/licensed-action/commit/01e75893a368f1e2b54a66ef436d943ddd17e54e))
+
 ## [0.2.0](https://github.com/robgee86/licensed-action/compare/v0.1.0...v0.2.0) (2026-10-08)
 
 
