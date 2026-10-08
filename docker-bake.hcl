@@ -39,8 +39,8 @@ group "default" {
 
 target "base" {
   context = "images/base"
-  tags    = tags("licensed-action")
-  output  = output("licensed-action")
+  tags    = tags("licensed")
+  output  = output("licensed")
 }
 
 # Each ecosystem image builds on the base image of the same build, never on a published one
@@ -49,8 +49,8 @@ target "ecosystem" {
   matrix   = { ecosystem = ECOSYSTEMS }
   context  = "images/${ecosystem}"
   contexts = { base = "target:base" }
-  tags     = tags("licensed-${ecosystem}-action")
-  output   = output("licensed-${ecosystem}-action")
+  tags     = tags("licensed-${ecosystem}")
+  output   = output("licensed-${ecosystem}")
 }
 
 target "gradle" {
@@ -59,6 +59,6 @@ target "gradle" {
   context  = "images/gradle"
   contexts = { base = "target:base" }
   args     = { JDK = jdk }
-  tags     = tags("licensed-gradle-jdk${jdk}-action")
-  output   = output("licensed-gradle-jdk${jdk}-action")
+  tags     = tags("licensed-gradle-jdk${jdk}")
+  output   = output("licensed-gradle-jdk${jdk}")
 }

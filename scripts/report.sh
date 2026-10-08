@@ -19,14 +19,14 @@ error_blocks() {
   ' "$LICENSED_LOG"
 }
 
-# Records of removed dependencies, relative to the workspace mounted under /src
+# Records of removed dependencies, relative to the workspace mounted at /src
 stale_records() {
-  sed -nE 's#^Stale dependency record found: /src/[^/]+/(.*)$#\1#p' "$LICENSED_LOG"
+  sed -nE 's#^Stale dependency record found: /src/(.*)$#\1#p' "$LICENSED_LOG"
 }
 
 # NOTICE files that differ from fresh ones, as "<problem> notice file: <path>" relative to the workspace
 notice_problems() {
-  sed -nE 's#^(Outdated|Missing|Stale) notice file: /src/[^/]+/(.*)$#\1 \2#p' "$LICENSED_LOG"
+  sed -nE 's#^(Outdated|Missing|Stale) notice file: /src/(.*)$#\1 \2#p' "$LICENSED_LOG"
 }
 
 # Workflow commands need escaped newlines, otherwise only the first line reaches the annotation

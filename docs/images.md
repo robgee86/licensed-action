@@ -2,8 +2,8 @@
 
 ## The container
 
-- The workspace is mounted at `/src/<folder name>`, so the app names licensed derives from folder names, and with them the records layout, match a native run.
-- `/cache` is the one directory kept between runs. The images point the Go, npm, corepack, Yarn, Gradle, CocoaPods, uv and pip caches inside it, and a repository can keep anything else there, such as virtual environments.
+- The workspace is mounted at `/src`, the working directory of the images. licensed names an app without a `name` after its folder, so in a configuration with several apps give the app at the root of the repository a `name`, otherwise it is named `src` and so are its records folder and NOTICE file.
+- `/cache` is the one directory kept between runs. The images point the Go, npm, corepack, Yarn, Gradle, CocoaPods, uv and pip caches inside it, and a repository can keep anything else there, such as virtual environments, in a folder named after it, since local runs share one volume across repositories.
 - The tools run as root, and on exit the files they created in the workspace and in `/cache` go back to the owner of the workspace.
 
 ## Commands
@@ -21,7 +21,7 @@ Besides licensed and licensed-notice-deduplicate, each image holds three command
 A repository that needs more than an image holds, such as system headers or its own preparation script, extends it with a Dockerfile, passed as `dockerfile` to the action and built with `docker build` locally. Setting `LICENSED_SETUP` in it gives CI and local runs the same setup without repeating it:
 
 ```dockerfile
-FROM ghcr.io/robgee86/licensed-python-action:v0
+FROM ghcr.io/robgee86/licensed-python:v0
 
 RUN apt-get update && apt-get install -y --no-install-recommends libasound2-dev && rm -rf /var/lib/apt/lists/*
 COPY prepare.py /prepare.py

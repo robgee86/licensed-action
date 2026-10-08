@@ -11,7 +11,7 @@ The [test](../.github/workflows/test.yml) workflow builds the images of each com
 To run a fixture by hand, from the root of this repository:
 
 ```sh
-LICENSED_WORKING_DIRECTORY=test/go LICENSED_IMAGE=ghcr.io/robgee86/licensed-go-action:local scripts/run.sh licensed-check
+LICENSED_WORKING_DIRECTORY=test/go LICENSED_IMAGE=ghcr.io/robgee86/licensed-go:local scripts/run.sh licensed-check
 ```
 
 ## Releasing

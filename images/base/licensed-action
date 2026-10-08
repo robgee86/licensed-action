@@ -3,11 +3,9 @@
 # are any, then checking them with licensed status
 set -euo pipefail
 
-# The tools run as root, their files go back to the owner of the workspace mounted under /src
-workspace="${PWD#/src/}"
-workspace="$([ "$workspace" != "$PWD" ] && echo "/src/${workspace%%/*}" || echo "$PWD")"
-owner="$(stat -c %u:%g "$workspace")"
-trap 'chown -R "$owner" "$workspace" /cache 2>/dev/null || true' EXIT
+# The tools run as root, their files go back to the owner of the workspace mounted at /src
+owner="$(stat -c %u:%g /src)"
+trap 'chown -R "$owner" /src /cache 2>/dev/null || true' EXIT
 
 # Evaluated in this shell, so the variables it exports reach the command
 eval "${LICENSED_SETUP:-}"
