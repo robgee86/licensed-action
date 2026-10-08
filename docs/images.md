@@ -37,5 +37,6 @@ The base image applies these [patches](../images/base/patches) to licensed:
 - **pip**: package folders are matched with PEP 503 name folding, so packages with dots in their names are found.
 - **Gradle**: the configurations licensed copies keep the variant attributes, without which multi-module Android projects fail to resolve. Plain Java projects resolve as before.
 - **Swift**: `Package.resolved` format version 2, written by Swift 5.6 and later, is read.
+- **Record file names**: the colon of Gradle coordinates becomes `__` in record file names, such as `org.apache.commons__commons-lang3.dep.yml`, because Windows cannot create files containing a colon and Git for Windows refuses to check them out.
 
 The CocoaPods image also patches the cocoapods-dependencies-list plugin, which recursed forever on pod versions with ActiveSupport 7.
