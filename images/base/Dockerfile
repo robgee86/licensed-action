@@ -52,9 +52,7 @@ RUN set -ex; \
 COPY --from=builder /var/lib/gems /var/lib/gems
 COPY --from=builder /usr/local/bin/licensed /usr/local/bin/licensed
 COPY --from=deduplicate /out/licensed-notice-deduplicate /usr/local/bin/licensed-notice-deduplicate
-COPY --chmod=755 entrypoint.sh /usr/local/bin/licensed-action
-COPY --chmod=755 notices.sh /usr/local/bin/licensed-notices
-COPY --chmod=755 check.sh /usr/local/bin/licensed-check
+COPY --chmod=755 licensed-action licensed-notices licensed-check /usr/local/bin/
 
 WORKDIR /src
 
