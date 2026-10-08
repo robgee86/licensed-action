@@ -30,7 +30,7 @@ See the [licensed configuration](https://github.com/licensee/licensed/blob/main/
 Write the records under `.licenses/`, then review and commit them:
 
 ```sh
-docker run --rm -v "$PWD:/src" -v licensed-cache:/cache ghcr.io/robgee86/licensed-go-action:v0
+docker run --rm -v "$PWD:/src" -v licensed-cache:/cache ghcr.io/robgee86/licensed-go:v0
 ```
 
 Replace `go` with your ecosystem. Run it again whenever dependencies change, later runs take seconds thanks to the cache volume, which all your repositories share. [Local runs](docs/local.md) covers checking, notices and Taskfile tasks.

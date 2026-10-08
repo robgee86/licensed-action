@@ -1,16 +1,18 @@
 # Ecosystems
 
-licensed runs the tools of each ecosystem, so each one has its image, built on the base image `ghcr.io/robgee86/licensed-action`. All images are published for amd64 and arm64 and share the version of the action.
+licensed runs the tools of each ecosystem, so each one has its image, built on the base image `ghcr.io/robgee86/licensed`. All images are published for amd64 and arm64 and share the version of the action.
 
 | `ecosystem` | Image | Holds |
 | --- | --- | --- |
-| `go` | `ghcr.io/robgee86/licensed-go-action` | Go, which can fetch the newer toolchain a `go.mod` asks for |
-| `node` | `ghcr.io/robgee86/licensed-node-action` | Node.js and npm, with yarn and pnpm shims through corepack, validated with npm only |
-| `python` | `ghcr.io/robgee86/licensed-python-action` | uv, Python 3.13 and a C toolchain, uv can download another Python on each run |
-| `gradle-jdk17` | `ghcr.io/robgee86/licensed-gradle-jdk17-action` | JDK 17 and the Android SDK |
-| `gradle-jdk21` | `ghcr.io/robgee86/licensed-gradle-jdk21-action` | JDK 21 and the Android SDK |
-| `cocoapods` | `ghcr.io/robgee86/licensed-cocoapods-action` | CocoaPods with the cocoapods-dependencies-list plugin |
-| `swift` | `ghcr.io/robgee86/licensed-swift-action` | The Swift toolchain |
+| `go` | `ghcr.io/robgee86/licensed-go` | Go, which can fetch the newer toolchain a `go.mod` asks for |
+| `node` | `ghcr.io/robgee86/licensed-node` | Node.js and npm, with yarn and pnpm shims through corepack, validated with npm only |
+| `python` | `ghcr.io/robgee86/licensed-python` | uv, Python 3.13 and a C toolchain, uv can download another Python on each run |
+| `gradle-jdk17` | `ghcr.io/robgee86/licensed-gradle-jdk17` | JDK 17 and the Android SDK |
+| `gradle-jdk21` | `ghcr.io/robgee86/licensed-gradle-jdk21` | JDK 21 and the Android SDK |
+| `cocoapods` | `ghcr.io/robgee86/licensed-cocoapods` | CocoaPods with the cocoapods-dependencies-list plugin |
+| `swift` | `ghcr.io/robgee86/licensed-swift` | The Swift toolchain |
+
+Up to v0.3 the images carried an `-action` suffix, such as `ghcr.io/robgee86/licensed-go-action`. A Dockerfile extending one of them needs the new name to receive updates.
 
 All but CocoaPods run on a fixture under [test](../test) in CI, CocoaPods pods need an Xcode project.
 

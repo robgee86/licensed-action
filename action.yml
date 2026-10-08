@@ -38,7 +38,7 @@ runs:
       with:
         context: ${{ inputs.context }}
         file: ${{ inputs.dockerfile }}
-        tags: licensed-action:local
+        tags: licensed:local
         load: true
         cache-from: type=gha,scope=licensed-action
         cache-to: type=gha,scope=licensed-action,mode=max
@@ -65,8 +65,8 @@ runs:
         LICENSED_WORKING_DIRECTORY: ${{ inputs.working-directory }}
       run: |
         case "$ECOSYSTEM" in
-          "") image="ghcr.io/robgee86/licensed-action:$VERSION" ;;
-          go | node | python | gradle-jdk17 | gradle-jdk21 | cocoapods | swift) image="ghcr.io/robgee86/licensed-$ECOSYSTEM-action:$VERSION" ;;
+          "") image="ghcr.io/robgee86/licensed:$VERSION" ;;
+          go | node | python | gradle-jdk17 | gradle-jdk21 | cocoapods | swift) image="ghcr.io/robgee86/licensed-$ECOSYSTEM:$VERSION" ;;
           *) echo "::error::Unknown ecosystem $ECOSYSTEM, use go, node, python, gradle-jdk17, gradle-jdk21, cocoapods or swift"; exit 1 ;;
         esac
         # The folder where licensed reads the installed dependencies, kept in the cache
@@ -76,7 +76,7 @@ runs:
           cocoapods) export LICENSED_DEPENDENCIES=Pods ;;
           swift) export LICENSED_DEPENDENCIES=.build ;;
         esac
-        export LICENSED_IMAGE="$([ -n "$DOCKERFILE" ] && echo licensed-action:local || echo "$image")"
+        export LICENSED_IMAGE="$([ -n "$DOCKERFILE" ] && echo licensed:local || echo "$image")"
         if "$GITHUB_ACTION_PATH/scripts/run.sh" licensed-check 2>&1 | tee "$RUNNER_TEMP/licensed.log"; then
           echo "outcome=success" >> "$GITHUB_OUTPUT"
         else

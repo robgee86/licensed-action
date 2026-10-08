@@ -21,7 +21,7 @@ Besides licensed and licensed-notice-deduplicate, each image holds three command
 A repository that needs more than an image holds, such as system headers or its own preparation script, extends it with a Dockerfile, passed as `dockerfile` to the action and built with `docker build` locally. Setting `LICENSED_SETUP` in it gives CI and local runs the same setup without repeating it:
 
 ```dockerfile
-FROM ghcr.io/robgee86/licensed-python-action:v0
+FROM ghcr.io/robgee86/licensed-python:v0
 
 RUN apt-get update && apt-get install -y --no-install-recommends libasound2-dev && rm -rf /var/lib/apt/lists/*
 COPY prepare.py /prepare.py

@@ -3,7 +3,7 @@
 Locally you run the image yourself, with your repository mounted under `/src` and a volume for `/cache`. The action runs the very same image, so what passes locally passes in CI.
 
 ```sh
-docker run --rm -v "$PWD:/src" -v licensed-cache:/cache ghcr.io/robgee86/licensed-go-action:v0 [command]
+docker run --rm -v "$PWD:/src" -v licensed-cache:/cache ghcr.io/robgee86/licensed-go:v0 [command]
 ```
 
 | Command | What it does |
@@ -17,7 +17,7 @@ docker run --rm -v "$PWD:/src" -v licensed-cache:/cache ghcr.io/robgee86/license
 Node, Python, CocoaPods and Swift install the dependencies licensed reads into a folder of your project, `node_modules`, `.venv`, `Pods` or `.build`. Mount a volume over it, so the container installs there instead of overwriting your own copy, built for your machine:
 
 ```sh
-docker run --rm -e LICENSED_SETUP="npm ci --ignore-scripts --omit=dev" -v "$PWD:/src" -v licensed-cache:/cache -v my-repo-licensed-deps:/src/node_modules ghcr.io/robgee86/licensed-node-action:v0
+docker run --rm -e LICENSED_SETUP="npm ci --ignore-scripts --omit=dev" -v "$PWD:/src" -v licensed-cache:/cache -v my-repo-licensed-deps:/src/node_modules ghcr.io/robgee86/licensed-node:v0
 ```
 
 When your project has no such folder, Docker leaves an empty one behind, already ignored by git in most projects.
@@ -44,12 +44,12 @@ tasks:
   fix:licenses:
     desc: Update the dependency license records, task fix:licenses -- licensed-notices turns notices on
     cmds:
-      - docker run --rm -v "$PWD:/src" -v licensed-cache:/cache ghcr.io/robgee86/licensed-go-action:v0 {{.CLI_ARGS}}
+      - docker run --rm -v "$PWD:/src" -v licensed-cache:/cache ghcr.io/robgee86/licensed-go:v0 {{.CLI_ARGS}}
 
   check:licenses:
     desc: Check the dependency license records as CI does
     cmds:
-      - docker run --rm -v "$PWD:/src" -v licensed-cache:/cache ghcr.io/robgee86/licensed-go-action:v0 licensed-check
+      - docker run --rm -v "$PWD:/src" -v licensed-cache:/cache ghcr.io/robgee86/licensed-go:v0 licensed-check
 ```
 
 A repository with its own Dockerfile adds a `docker build -t my-repo-licensed <folder>` command first and runs that image instead.
