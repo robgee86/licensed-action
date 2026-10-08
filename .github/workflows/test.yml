@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         runner: [ubuntu-24.04, ubuntu-24.04-arm]
-        ecosystem: [go, node, python, gradle, swift]
+        ecosystem: [go, node, python, gradle-jdk17, gradle-jdk21, swift]
         include:
           - ecosystem: go
             cache-key-files: test/go/go.sum
@@ -24,7 +24,11 @@ jobs:
           - ecosystem: python
             setup: UV_PROJECT_ENVIRONMENT=.venv uv sync --frozen --no-dev --no-install-project && uv pip install -q --python .venv pip
             cache-key-files: test/python/uv.lock
-          - ecosystem: gradle
+          - ecosystem: gradle-jdk17
+            fixture: gradle
+            cache-key-files: test/gradle/build.gradle
+          - ecosystem: gradle-jdk21
+            fixture: gradle
             cache-key-files: test/gradle/build.gradle
           - ecosystem: swift
             setup: swift package resolve
@@ -47,7 +51,7 @@ jobs:
       - uses: ./
         with:
           ecosystem: ${{ matrix.ecosystem }}
-          working-directory: test/${{ matrix.ecosystem }}
+          working-directory: test/${{ matrix.fixture || matrix.ecosystem }}
           setup: ${{ matrix.setup }}
           cache-key-files: ${{ matrix.cache-key-files }}
 

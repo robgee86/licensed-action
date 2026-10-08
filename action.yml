@@ -4,7 +4,7 @@ author: robgee86
 
 inputs:
   ecosystem:
-    description: Ecosystem image to run, go, node, python, gradle, cocoapods or swift, the base image is used when empty
+    description: Ecosystem image to run, go, node, python, gradle-jdk17, gradle-jdk21, cocoapods or swift, the base image is used when empty
     default: ""
   dockerfile:
     description: Dockerfile extending one of the images, built and run in place of the ecosystem image
@@ -66,8 +66,8 @@ runs:
       run: |
         case "$ECOSYSTEM" in
           "") image="ghcr.io/robgee86/licensed-action:$VERSION" ;;
-          go | node | python | gradle | cocoapods | swift) image="ghcr.io/robgee86/licensed-$ECOSYSTEM-action:$VERSION" ;;
-          *) echo "::error::Unknown ecosystem $ECOSYSTEM, use go, node, python, gradle, cocoapods or swift"; exit 1 ;;
+          go | node | python | gradle-jdk17 | gradle-jdk21 | cocoapods | swift) image="ghcr.io/robgee86/licensed-$ECOSYSTEM-action:$VERSION" ;;
+          *) echo "::error::Unknown ecosystem $ECOSYSTEM, use go, node, python, gradle-jdk17, gradle-jdk21, cocoapods or swift"; exit 1 ;;
         esac
         export LICENSED_IMAGE="$([ -n "$DOCKERFILE" ] && echo licensed-action:local || echo "$image")"
         if "$GITHUB_ACTION_PATH/scripts/run.sh" licensed-check 2>&1 | tee "$RUNNER_TEMP/licensed.log"; then

@@ -16,7 +16,7 @@ The action restores a cache, runs `licensed-check` in the image of your ecosyste
 
 | Input | Default | Description |
 | --- | --- | --- |
-| `ecosystem` | | Image to run, `go`, `node`, `python`, `gradle`, `cocoapods` or `swift`, the base image when empty |
+| `ecosystem` | | Image to run, `go`, `node`, `python`, `gradle-jdk17`, `gradle-jdk21`, `cocoapods` or `swift`, the base image when empty |
 | `dockerfile` | | Dockerfile [extending](images.md#extending-an-image) one of the images, built and run in place of the ecosystem image |
 | `context` | `.` | Build context of the dockerfile |
 | `working-directory` | `.` | Folder holding `.licensed.yml`, relative to the workspace |

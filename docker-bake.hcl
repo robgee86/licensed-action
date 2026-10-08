@@ -15,7 +15,12 @@ variable "PUSH_BY_DIGEST" {
 }
 
 variable "ECOSYSTEMS" {
-  default = ["go", "node", "python", "gradle", "cocoapods", "swift"]
+  default = ["go", "node", "python", "cocoapods", "swift"]
+}
+
+# Gradle ships one image per JDK, so each project pulls only the one its Android Gradle plugin runs on
+variable "JDKS" {
+  default = ["17", "21"]
 }
 
 function "tags" {
@@ -29,7 +34,7 @@ function "output" {
 }
 
 group "default" {
-  targets = ["base", "ecosystem"]
+  targets = ["base", "ecosystem", "gradle"]
 }
 
 target "base" {
@@ -46,4 +51,14 @@ target "ecosystem" {
   contexts = { base = "target:base" }
   tags     = tags("licensed-${ecosystem}-action")
   output   = output("licensed-${ecosystem}-action")
+}
+
+target "gradle" {
+  name     = "gradle-jdk${jdk}"
+  matrix   = { jdk = JDKS }
+  context  = "images/gradle"
+  contexts = { base = "target:base" }
+  args     = { JDK = jdk }
+  tags     = tags("licensed-gradle-jdk${jdk}-action")
+  output   = output("licensed-gradle-jdk${jdk}-action")
 }
