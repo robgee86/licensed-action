@@ -1,0 +1,35 @@
+Gradle names dependencies group:artifact, and Windows cannot create files containing a colon, so record file names use __ instead
+
+--- a/lib/licensed/commands/cache.rb
++++ b/lib/licensed/commands/cache.rb
+@@ -75,7 +75,7 @@
+           return false
+         end
+ 
+-        filename = app.cache_path.join(source.class.type, "#{dependency.name}.#{DependencyRecord::EXTENSION}")
++        filename = app.cache_path.join(source.class.type, "#{dependency.name.gsub(":", "__")}.#{DependencyRecord::EXTENSION}")
+         cached_record = Licensed::DependencyRecord.read(filename)
+ 
+         report["cached"] = false
+--- a/lib/licensed/commands/status.rb
++++ b/lib/licensed/commands/status.rb
+@@ -84,7 +84,7 @@
+         if data_source == "configuration"
+           record = dependency.record
+         else
+-          filename = app.cache_path.join(source.class.type, "#{dependency.name}.#{DependencyRecord::EXTENSION}")
++          filename = app.cache_path.join(source.class.type, "#{dependency.name.gsub(":", "__")}.#{DependencyRecord::EXTENSION}")
+           report["filename"] = filename
+           record = cached_record(filename)
+ 
+--- a/lib/licensed/commands/notices.rb
++++ b/lib/licensed/commands/notices.rb
+@@ -41,7 +41,7 @@
+       #
+       # Returns a dependency record or nil if one doesn't exist
+       def load_cached_dependency_record(app, source, dependency, report)
+-        filename = app.cache_path.join(source.class.type, "#{dependency.name}.#{DependencyRecord::EXTENSION}")
++        filename = app.cache_path.join(source.class.type, "#{dependency.name.gsub(":", "__")}.#{DependencyRecord::EXTENSION}")
+         record = Licensed::DependencyRecord.read(filename)
+         if !record
+           report.warnings << "expected cached record not found at #{filename}"
