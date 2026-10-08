@@ -2,7 +2,7 @@
 
 ## The container
 
-- The workspace is mounted at `/src/<folder name>`, so the app names licensed derives from folder names, and with them the records layout, match a native run.
+- The workspace is mounted at `/src`, the working directory of the images. licensed names an app without a `name` after its folder, so in a configuration with several apps give the app at the root of the repository a `name`, otherwise it is named `src` and so are its records folder and NOTICE file.
 - `/cache` is the one directory kept between runs. The images point the Go, npm, corepack, Yarn, Gradle, CocoaPods, uv and pip caches inside it, and a repository can keep anything else there, such as virtual environments.
 - The tools run as root, and on exit the files they created in the workspace and in `/cache` go back to the owner of the workspace.
 

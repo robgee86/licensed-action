@@ -5,9 +5,8 @@ set -euo pipefail
 
 : "${LICENSED_IMAGE:?LICENSED_IMAGE must name the image to run}"
 
-# Keeping the folder name preserves the app names licensed derives from it, and so the records layout
-mount="/src/$(basename "$PWD")"
-args=(--rm --volume "$PWD:$mount" --workdir "$mount/${LICENSED_WORKING_DIRECTORY:-.}")
+# The workspace is mounted at /src, the working directory of the images
+args=(--rm --volume "$PWD:/src" --workdir "/src/${LICENSED_WORKING_DIRECTORY:-.}")
 # An empty setup keeps the one the image sets
 [ -n "${LICENSED_SETUP:-}" ] && args+=(--env LICENSED_SETUP)
 if [ -n "${LICENSED_CACHE_DIR:-}" ]; then
@@ -16,7 +15,7 @@ if [ -n "${LICENSED_CACHE_DIR:-}" ]; then
   # The installed dependencies live in the cache too, in place of the folder of the working directory licensed reads
   if [ -n "${LICENSED_DEPENDENCIES:-}" ]; then
     mkdir -p "$LICENSED_CACHE_DIR/dependencies/$LICENSED_DEPENDENCIES"
-    args+=(--volume "$LICENSED_CACHE_DIR/dependencies/$LICENSED_DEPENDENCIES:$mount/${LICENSED_WORKING_DIRECTORY:-.}/$LICENSED_DEPENDENCIES")
+    args+=(--volume "$LICENSED_CACHE_DIR/dependencies/$LICENSED_DEPENDENCIES:/src/${LICENSED_WORKING_DIRECTORY:-.}/$LICENSED_DEPENDENCIES")
   fi
 fi
 # Git reads its config from these variables, so the token reaches private modules without touching any file

@@ -5,7 +5,7 @@ A NOTICE file collects the license texts of all the dependencies of an app, read
 Committing NOTICE files is what turns them on. Write them once, then commit them next to the records:
 
 ```sh
-docker run --rm -v "$PWD:/src/my-repo" -w /src/my-repo -v my-repo-licensed:/cache ghcr.io/robgee86/licensed-go-action:v0 licensed-notices
+docker run --rm -v "$PWD:/src" -v my-repo-licensed:/cache ghcr.io/robgee86/licensed-go-action:v0 licensed-notices
 ```
 
 or `task fix:licenses -- licensed-notices` with the tasks of [local runs](local.md#taskfile). From then on:
