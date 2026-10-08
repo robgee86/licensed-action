@@ -4,7 +4,13 @@
   "packages": {
     ".": {
       "initial-version": "0.1.0",
-      "extra-files": [{ "type": "generic", "path": "action.yml" }]
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "action.yml"
+        }
+      ],
+      "bump-minor-pre-major": true
     }
   }
 }
