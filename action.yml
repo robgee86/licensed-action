@@ -56,7 +56,7 @@ runs:
       id: licensed
       shell: bash
       env:
-        VERSION: v0.2.0 # x-release-please-version
+        VERSION: v0.3.0 # x-release-please-version
         ECOSYSTEM: ${{ inputs.ecosystem }}
         DOCKERFILE: ${{ inputs.dockerfile }}
         LICENSED_CACHE_DIR: ${{ inputs.cache-key-files != '' && format('{0}/licensed-cache', runner.temp) || '' }}
