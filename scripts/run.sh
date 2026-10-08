@@ -13,6 +13,11 @@ args=(--rm --volume "$PWD:$mount" --workdir "$mount/${LICENSED_WORKING_DIRECTORY
 if [ -n "${LICENSED_CACHE_DIR:-}" ]; then
   mkdir -p "$LICENSED_CACHE_DIR"
   args+=(--volume "$LICENSED_CACHE_DIR:/cache")
+  # The installed dependencies live in the cache too, in place of the folder of the working directory licensed reads
+  if [ -n "${LICENSED_DEPENDENCIES:-}" ]; then
+    mkdir -p "$LICENSED_CACHE_DIR/dependencies/$LICENSED_DEPENDENCIES"
+    args+=(--volume "$LICENSED_CACHE_DIR/dependencies/$LICENSED_DEPENDENCIES:$mount/${LICENSED_WORKING_DIRECTORY:-.}/$LICENSED_DEPENDENCIES")
+  fi
 fi
 # Git reads its config from these variables, so the token reaches private modules without touching any file
 if [ -n "${LICENSED_GITHUB_TOKEN:-}" ]; then

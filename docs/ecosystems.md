@@ -24,7 +24,7 @@ No setup is needed. Code generated at build time must exist before the scan, run
 
 ## Python
 
-licensed reads the installed packages of the venv set in `python.virtual_env_dir`, and needs pip inside it. With uv:
+licensed reads the installed packages of the venv set in `python.virtual_env_dir`, and needs pip inside it. Name it `.venv`, the folder the runs keep in the cache. With uv:
 
 ```yaml
 python:

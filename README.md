@@ -53,16 +53,16 @@ The job fails when a record is missing, outdated, left over from a removed depen
 
 ## Ecosystems
 
-| `ecosystem` | `setup` | `cache-key-files` |
-| --- | --- | --- |
-| `go` | | `go.sum` |
-| `node` | `npm ci --ignore-scripts --omit=dev` | `package-lock.json` |
-| `python` | `UV_PROJECT_ENVIRONMENT=.venv uv sync --frozen --no-dev --no-install-project && uv pip install --python .venv pip` | `uv.lock` |
-| `gradle-jdk17`, `gradle-jdk21` | | `**/*.gradle*` |
-| `cocoapods` | `pod install` | `Podfile.lock` |
-| `swift` | `swift package resolve` | `Package.resolved` |
+| `ecosystem` | `setup` | `cache-key-files` | Dependency folder |
+| --- | --- | --- | --- |
+| `go` | | `go.sum` | |
+| `node` | `npm ci --ignore-scripts --omit=dev` | `package-lock.json` | `node_modules` |
+| `python` | `UV_PROJECT_ENVIRONMENT=.venv uv sync --frozen --no-dev --no-install-project && uv pip install --python .venv pip` | `uv.lock` | `.venv` |
+| `gradle-jdk17`, `gradle-jdk21` | | `**/*.gradle*` | |
+| `cocoapods` | `pod install` | `Podfile.lock` | `Pods` |
+| `swift` | `swift package resolve` | `Package.resolved` | `.build` |
 
-`setup` prepares the dependencies licensed reads, pass it as the action input in CI and as `-e LICENSED_SETUP="..."` locally. [Ecosystems](docs/ecosystems.md) has the details of each one.
+`setup` prepares the dependencies licensed reads, pass it as the action input in CI and as `-e LICENSED_SETUP="..."` locally. It installs them in the dependency folder, which the runs keep in the cache instead of your working tree, so your own copy is never touched. [Ecosystems](docs/ecosystems.md) has the details of each one.
 
 ## Documentation
 
