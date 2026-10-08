@@ -30,7 +30,7 @@ jobs:
           cache-key-files: go.sum
 ```
 
-The action restores the cache directory, runs `licensed status` in the image, and reports the problems as annotations and a step summary. It checks the committed records without rewriting them, failing on a missing or outdated record, a license outside the allowed list, or a record of a removed dependency. That last check needs `stale_records_action: error` in the licensed configuration, licensed only warns otherwise.
+The action restores the cache directory, runs `licensed-check` in the image, and reports the problems as annotations and a step summary. It checks the committed records with `licensed status`, without rewriting them, failing on a missing or outdated record, a license outside the allowed list, or a record of a removed dependency. That last check needs `stale_records_action: error` in the licensed configuration, licensed only warns otherwise. When the repository commits [NOTICE files](#notices), it also fails on one that no longer matches the records.
 
 ## Inputs
 
@@ -64,6 +64,10 @@ Each row was validated against real repositories and runs on a [test](test) fixt
 - Older Android Gradle plugins install the SDK packages they miss and print to the output licensed parses, a setup such as `./gradlew -q help` lets them do it first.
 - A plugin that needs another JDK gets it from a Dockerfile extending the image, see below.
 
+## Notices
+
+Committing NOTICE files turns them on. The images write them with `licensed-notices`, which runs `licensed notices` and then [licensed-notice-deduplicate](https://github.com/arduino/licensed-notice-deduplicate), merging the packages that share a license text into one entry. A repository enables them once by running `licensed-notices` in the image, as in [local runs](#local-runs), and committing the NOTICE files it writes next to the records. From then on the default local run keeps them current and the action checks them, comparing them with fresh ones. Deleting them turns notices off.
+
 ## Extending an image
 
 A repository that needs more than an image holds, such as system headers or its own preparation script, extends it with a Dockerfile and passes it as `dockerfile`. Setting `LICENSED_SETUP` in the image gives CI and local runs the same setup without repeating it:
@@ -82,7 +86,7 @@ The images run `licensed-action` as their entrypoint, which a Dockerfile keeps.
 
 - The workspace is mounted at `/src/<folder name>`, so the app names licensed derives from folder names, and with them the records layout, match a native run. The commands run in `working-directory`, and as licensed resolves paths from the git repository root by default, a configuration in a subfolder sets `root: true`.
 - `/cache` is the one directory kept between runs. The images already point the Go, npm, corepack, Yarn, Gradle, CocoaPods, uv and pip caches inside it. A repository can keep anything else there, such as virtual environments. What lives inside is up to the repository, and a stale cache must be safe to reuse, since a run restores the closest earlier cache when the key files changed.
-- The entrypoint evaluates `LICENSED_SETUP`, so the variables it exports reach licensed, then runs its arguments, `licensed status` in the action, or `licensed cache` and `licensed status` without any. On exit it hands the files created in the workspace and in `/cache` to the owner of the workspace, since the tools run as root.
+- The entrypoint evaluates `LICENSED_SETUP`, so the variables it exports reach licensed, then runs its arguments, `licensed-check` in the action. Without arguments it runs `licensed cache`, `licensed-notices` when there are NOTICE files, and `licensed status`. On exit it hands the files created in the workspace and in `/cache` to the owner of the workspace, since the tools run as root.
 - `github-token` reaches git through `GIT_CONFIG_*` variables, so private Go modules resolve without writing credentials anywhere.
 
 ## Local runs
@@ -95,7 +99,7 @@ licenses:
     - docker run --rm -v "$PWD:/src/my-repo" -w /src/my-repo -v my-repo-licensed:/cache ghcr.io/robgee86/licensed-go-action:v0
 ```
 
-Without arguments the image runs `licensed cache` then `licensed status`, updating the records, and `licensed status` after the image checks them as CI does. The cache volume keeps the tooling and dependency caches between runs, so later runs take seconds. A repository with its own Dockerfile builds it first with `docker build` and runs that image instead, `-e LICENSED_SETUP=...` passes the setup to an image that sets none.
+Without arguments the image updates the records and the NOTICE files, and `licensed-check` after the image checks them as CI does. The cache volume keeps the tooling and dependency caches between runs, so later runs take seconds. A repository with its own Dockerfile builds it first with `docker build` and runs that image instead, `-e LICENSED_SETUP=...` passes the setup to an image that sets none.
 
 ## Patched licensed
 

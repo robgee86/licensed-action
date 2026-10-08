@@ -1,5 +1,5 @@
 name: licensed
-description: Checks the committed dependency license records with licensed status in a Docker image, caching the ecosystem tooling between runs
+description: Checks the committed dependency license records and NOTICE files with licensed in a Docker image, caching the ecosystem tooling between runs
 author: robgee86
 
 inputs:
@@ -16,7 +16,7 @@ inputs:
     description: Folder holding the licensed configuration, relative to the workspace
     default: "."
   setup:
-    description: Shell commands run in the container before licensed status, replacing the LICENSED_SETUP of the image
+    description: Shell commands run in the container before licensed, replacing the LICENSED_SETUP of the image
     default: ""
   cache-key-files:
     description: Newline separated globs of the files whose content keys the /cache directory, caching is off when empty
@@ -70,7 +70,7 @@ runs:
           *) echo "::error::Unknown ecosystem $ECOSYSTEM, use go, node, python, gradle, cocoapods or swift"; exit 1 ;;
         esac
         export LICENSED_IMAGE="$([ -n "$DOCKERFILE" ] && echo licensed-action:local || echo "$image")"
-        if "$GITHUB_ACTION_PATH/scripts/run.sh" licensed status 2>&1 | tee "$RUNNER_TEMP/licensed.log"; then
+        if "$GITHUB_ACTION_PATH/scripts/run.sh" licensed-check 2>&1 | tee "$RUNNER_TEMP/licensed.log"; then
           echo "outcome=success" >> "$GITHUB_OUTPUT"
         else
           echo "outcome=failure" >> "$GITHUB_OUTPUT"

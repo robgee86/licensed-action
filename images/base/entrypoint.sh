@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Runs LICENSED_SETUP and then the given command, licensed cache and licensed status by default
+# Runs LICENSED_SETUP and then the given command, by default updating the records, and the NOTICE files when there
+# are any, then checking them with licensed status
 set -euo pipefail
 
 # The tools run as root, their files go back to the owner of the workspace mounted under /src
@@ -13,6 +14,7 @@ eval "${LICENSED_SETUP:-}"
 
 if [ $# -eq 0 ]; then
   licensed cache
+  if licensed-notices --enabled; then licensed-notices; fi
   licensed status
 else
   "$@"
