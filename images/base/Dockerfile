@@ -5,7 +5,7 @@ ARG LICENSEE_VERSION=9.20.0
 
 FROM golang:1.26-trixie AS deduplicate
 
-ARG DEDUPLICATE_VERSION=v1.0.0
+ARG DEDUPLICATE_VERSION=v1.1.0
 RUN CGO_ENABLED=0 GOBIN=/out go install "github.com/arduino/licensed-notice-deduplicate@${DEDUPLICATE_VERSION}"
 
 FROM debian:trixie-slim AS builder
@@ -52,9 +52,7 @@ RUN set -ex; \
 COPY --from=builder /var/lib/gems /var/lib/gems
 COPY --from=builder /usr/local/bin/licensed /usr/local/bin/licensed
 COPY --from=deduplicate /out/licensed-notice-deduplicate /usr/local/bin/licensed-notice-deduplicate
-COPY --chmod=755 entrypoint.sh /usr/local/bin/licensed-action
-COPY --chmod=755 notices.sh /usr/local/bin/licensed-notices
-COPY --chmod=755 check.sh /usr/local/bin/licensed-check
+COPY --chmod=755 licensed-action licensed-notices licensed-check /usr/local/bin/
 
 WORKDIR /src
 
