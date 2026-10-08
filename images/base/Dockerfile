@@ -5,7 +5,7 @@ ARG LICENSEE_VERSION=9.20.0
 
 FROM golang:1.26-trixie AS deduplicate
 
-ARG DEDUPLICATE_VERSION=v1.0.0
+ARG DEDUPLICATE_VERSION=v1.1.0
 RUN CGO_ENABLED=0 GOBIN=/out go install "github.com/arduino/licensed-notice-deduplicate@${DEDUPLICATE_VERSION}"
 
 FROM debian:trixie-slim AS builder
