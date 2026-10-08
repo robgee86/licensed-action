@@ -64,9 +64,25 @@ Each row was validated against real repositories and runs on a [test](test) fixt
 - Older Android Gradle plugins install the SDK packages they miss and print to the output licensed parses, a setup such as `./gradlew -q help` lets them do it first.
 - A plugin that needs another JDK gets it from a Dockerfile extending the image, see below.
 
+## Commands
+
+Besides licensed and licensed-notice-deduplicate, each image holds three commands. They run by passing them after the image name, as the action and [local runs](#local-runs) do:
+
+| Command | What it does |
+| --- | --- |
+| `licensed-action` | The entrypoint, it evaluates `LICENSED_SETUP` then runs the given command, or without one updates the records and the NOTICE files and checks them |
+| `licensed-check` | What the action runs, `licensed status` plus, when there are NOTICE files, their comparison with fresh ones |
+| `licensed-notices` | Writes the NOTICE files with `licensed notices`, then merges the packages that share a license text with [licensed-notice-deduplicate](https://github.com/arduino/licensed-notice-deduplicate) |
+
 ## Notices
 
-Committing NOTICE files turns them on. The images write them with `licensed-notices`, which runs `licensed notices` and then [licensed-notice-deduplicate](https://github.com/arduino/licensed-notice-deduplicate), merging the packages that share a license text into one entry. A repository enables them once by running `licensed-notices` in the image, as in [local runs](#local-runs), and committing the NOTICE files it writes next to the records. From then on the default local run keeps them current and the action checks them, comparing them with fresh ones. Deleting them turns notices off.
+Committing NOTICE files turns them on. A repository writes them once, then commits them next to the records:
+
+```sh
+docker run --rm -v "$PWD:/src/my-repo" -w /src/my-repo ghcr.io/robgee86/licensed-go-action:v0 licensed-notices
+```
+
+From then on the default local run keeps them current and the action checks them. Deleting them turns notices off.
 
 ## Extending an image
 
