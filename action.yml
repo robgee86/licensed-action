@@ -4,7 +4,7 @@ author: robgee86
 
 inputs:
   ecosystem:
-    description: Ecosystem image to run, go, node, python, gradle-jdk17, gradle-jdk21, cocoapods or swift, the base image is used when empty
+    description: Ecosystem image to run, go, node, python, gradle-jdk17, gradle-jdk21, cocoapods, swift or react-native, the base image is used when empty
     default: ""
   dockerfile:
     description: Dockerfile extending one of the images, built and run in place of the ecosystem image, which still sets the dependency folder
@@ -23,6 +23,9 @@ inputs:
     default: ""
   github-token:
     description: Token granting access to private dependencies hosted on GitHub
+    default: ""
+  env:
+    description: Names of environment variables of this step passed to the container, separated by spaces or newlines, such as a package registry token
     default: ""
 
 runs:
@@ -63,11 +66,12 @@ runs:
         LICENSED_SETUP: ${{ inputs.setup }}
         LICENSED_GITHUB_TOKEN: ${{ inputs.github-token }}
         LICENSED_WORKING_DIRECTORY: ${{ inputs.working-directory }}
+        LICENSED_ENV: ${{ inputs.env }}
       run: |
         case "$ECOSYSTEM" in
           "") image="ghcr.io/robgee86/licensed:$VERSION" ;;
-          go | node | python | gradle-jdk17 | gradle-jdk21 | cocoapods | swift) image="ghcr.io/robgee86/licensed-$ECOSYSTEM:$VERSION" ;;
-          *) echo "::error::Unknown ecosystem $ECOSYSTEM, use go, node, python, gradle-jdk17, gradle-jdk21, cocoapods or swift"; exit 1 ;;
+          go | node | python | gradle-jdk17 | gradle-jdk21 | cocoapods | swift | react-native) image="ghcr.io/robgee86/licensed-$ECOSYSTEM:$VERSION" ;;
+          *) echo "::error::Unknown ecosystem $ECOSYSTEM, use go, node, python, gradle-jdk17, gradle-jdk21, cocoapods, swift or react-native"; exit 1 ;;
         esac
         # The folder where licensed reads the installed dependencies, kept in the cache
         case "$ECOSYSTEM" in
@@ -75,6 +79,7 @@ runs:
           node) export LICENSED_DEPENDENCIES=node_modules ;;
           cocoapods) export LICENSED_DEPENDENCIES=Pods ;;
           swift) export LICENSED_DEPENDENCIES=.build ;;
+          react-native) export LICENSED_DEPENDENCIES="node_modules ios/Pods" ;;
         esac
         export LICENSED_IMAGE="$([ -n "$DOCKERFILE" ] && echo licensed:local || echo "$image")"
         if "$GITHUB_ACTION_PATH/scripts/run.sh" licensed-check 2>&1 | tee "$RUNNER_TEMP/licensed.log"; then

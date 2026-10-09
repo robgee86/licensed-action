@@ -55,6 +55,25 @@ jobs:
           setup: ${{ matrix.setup }}
           cache-key-files: ${{ matrix.cache-key-files }}
 
+  # Images without a fixture, as their ecosystems need an Xcode project, must still build on both platforms
+  images:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build the CocoaPods and React Native images
+        env:
+          SCOPE: react-native-${{ matrix.runner }}
+        run: |
+          docker buildx bake \
+            --set "*.cache-from=type=gha,scope=$SCOPE" --set "*.cache-to=type=gha,scope=$SCOPE,mode=max" cocoapods react-native
+
   # The action must fail on a missing or stale record and on an outdated NOTICE file
   failures:
     runs-on: ubuntu-24.04

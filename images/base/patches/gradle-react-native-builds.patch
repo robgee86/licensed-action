@@ -1,0 +1,36 @@
+Gradle builds print to the output licensed parses, local files lack a version, and Gradle-License-Report 2.0 fails on Android library modules and local aar files
+
+--- a/lib/licensed/sources/gradle.rb
++++ b/lib/licensed/sources/gradle.rb
+@@ -44,13 +44,19 @@
+       end
+ 
+       def enumerate_dependencies
+-        JSON.parse(gradle_runner.run("printDependencies")).map do |package|
++        # Builds and their plugins can print at the quiet log level too, the dependencies are the last JSON array line
++        output = gradle_runner.run("printDependencies")
++        json = output.lines.reverse.find { |line| line.strip.match?(/\A\[.*\]\z/) } || output
++        JSON.parse(json).map do |package|
+           name = "#{package['group']}:#{package['name']}"
++          # Local files such as libs/*.aar have no group nor version, the version in the file name keeps their record stable
++          version = package["version"].to_s
++          version = package["name"].to_s[/-(\d+(?:\.\d+)+\S*)\z/, 1].to_s if version.empty? && package["group"].to_s.empty?
+           Dependency.new(
+             name: name,
+-            version: package["version"],
++            version: version,
+             path: config.pwd,
+-            url: package_url(name: name, version: package["version"]),
++            url: package_url(name: name, version: version),
+             metadata: {
+               "type" => Gradle.type,
+             }
+@@ -167,7 +173,7 @@
+                     }
+                   }
+                   dependencies {
+-                    classpath "com.github.jk1:gradle-license-report:#{gradle_version >= Gem::Version.new("7.0") ? "2.0" : "1.17"}"
++                    classpath "com.github.jk1:gradle-license-report:#{gradle_version >= Gem::Version.new("7.0") ? "2.9" : "1.17"}"
+                   }
+                 }
+ 

@@ -20,7 +20,11 @@ Node, Python, CocoaPods and Swift install the dependencies licensed reads into a
 docker run --rm -e LICENSED_SETUP="npm ci --ignore-scripts --omit=dev" -v "$PWD:/src" -v licensed-cache:/cache -v my-repo-licensed-deps:/src/node_modules ghcr.io/robgee86/licensed-node:v0
 ```
 
-When your project has no such folder, Docker leaves an empty one behind, already ignored by git in most projects.
+When your project has no such folder, Docker leaves an empty one behind, already ignored by git in most projects. A React Native app has two, each with its own volume, and a registry token goes in by name with `-e`:
+
+```sh
+docker run --rm -e NPM_TOKEN -v "$PWD:/src" -v licensed-cache:/cache -v my-repo-licensed-deps:/src/node_modules -v my-repo-licensed-pods:/src/ios/Pods ghcr.io/robgee86/licensed-react-native:v0
+```
 
 ## Fast runs
 

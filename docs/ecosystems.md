@@ -11,10 +11,11 @@ licensed runs the tools of each ecosystem, so each one has its image, built on t
 | `gradle-jdk21` | `ghcr.io/robgee86/licensed-gradle-jdk21` | JDK 21 and the Android SDK |
 | `cocoapods` | `ghcr.io/robgee86/licensed-cocoapods` | CocoaPods with the cocoapods-dependencies-list plugin |
 | `swift` | `ghcr.io/robgee86/licensed-swift` | The Swift toolchain |
+| `react-native` | `ghcr.io/robgee86/licensed-react-native` | Node.js, CocoaPods, JDK 17, the Android SDK and build tools |
 
 Up to v0.3 the images carried an `-action` suffix, such as `ghcr.io/robgee86/licensed-go-action`. A Dockerfile extending one of them needs the new name to receive updates.
 
-All but CocoaPods run on a fixture under [test](../test) in CI, CocoaPods pods need an Xcode project.
+All but CocoaPods and React Native run on a fixture under [test](../test) in CI, as both need an Xcode project.
 
 ## Go
 
@@ -46,11 +47,44 @@ Pick the image of the JDK your build runs on: JDK 17 for the Android Gradle plug
 - When the Gradle project is in a subfolder, set licensed's `root` to it, the Gradle plugin writes its report next to the Gradle root.
 - Older Android Gradle plugins install the SDK packages they miss and print to the output licensed parses, a setup such as `./gradlew -q help` lets them do it first.
 - Android Gradle plugins older than 8 run on JDK 11, which a Dockerfile [extending](images.md#extending-an-image) an image adds.
+- The Android Gradle plugin downloads the NDK of the `ndkVersion` a project sets, the cache keeps it, so only the first run downloads it.
 - Records are named `group__artifact.dep.yml`, with `__` in place of the colon, so repositories can be cloned on Windows. Other licensed builds name them `group:artifact.dep.yml`, rename the files when moving to this image.
 
 ## CocoaPods
 
 `pod install` downloads the pods licensed reads, and also integrates the Xcode project in the working tree.
+
+## React Native
+
+The Podfile and the Gradle build of a React Native app run Node.js, so one image holds all three toolchains and one configuration checks the three parts:
+
+```yaml
+apps:
+  - name: js
+    source_path: .
+    sources:
+      npm: true
+  - name: ios
+    source_path: ios
+    sources:
+      cocoapods: true
+    cocoapods:
+      targets:
+        - MyApp
+  - name: android
+    root: android
+    source_path: app
+    cache_path: ../.licenses
+    sources:
+      gradle: true
+    gradle:
+      configurations:
+        - releaseRuntimeClasspath
+```
+
+- The setup of the image, `licensed-react-native-setup`, installs the JavaScript packages from the lockfile, development ones included since the Podfile and the Gradle build run the React Native CLI, then runs `pod install`. A project that needs more prepends it, such as a CocoaPods plugin its Podfile loads: `gem install --no-document cocoapods-user-defined-build-types && licensed-react-native-setup`.
+- The pods React Native builds from `node_modules` are covered by the records of their npm packages, list them under `ignored`.
+- `pod install` keeps the pod versions of `ios/Podfile.lock`, but recomputes the checksums of the pods React Native evaluates from `node_modules`, which can differ from the ones written on a Mac, so a local run can leave `ios/Podfile.lock` changed in your working tree.
 
 ## Swift
 

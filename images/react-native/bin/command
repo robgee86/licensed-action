@@ -1,0 +1,3 @@
+#!/bin/sh
+# macOS ships command as an executable wrapping the shell builtin, React Native runs it without a shell
+command "$@"
