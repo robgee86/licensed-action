@@ -1,0 +1,24 @@
+Android builds with product flavors fail to resolve the artifacts of their library modules, which offer several variants
+
+--- a/lib/licensed/sources/gradle.rb
++++ b/lib/licensed/sources/gradle.rb
+@@ -188,8 +188,17 @@
+                     doLast {
+                         def dependencies = []
+                         configs.each {
+-                            configurations[it].resolvedConfiguration.resolvedArtifacts.each { artifact ->
+-                                def id = artifact.moduleVersion.id
++                            def configuration = configurations[it]
++                            def ids
++                            try {
++                                ids = configuration.resolvedConfiguration.resolvedArtifacts.collect { artifact -> artifact.moduleVersion.id }
++                            } catch (Exception ambiguous) {
++                                // Library modules of Android builds with product flavors offer several artifacts, pick the classes jar as the Android plugin does, and leave out the modules of the build itself
++                                def jars = configuration.incoming.artifactView { attributes { attribute(Attribute.of("artifactType", String), "android-classes-jar") } }.artifacts
++                                def modules = jars.collect { artifact -> artifact.id.componentIdentifier }.findAll { component -> component instanceof ModuleComponentIdentifier }
++                                ids = modules.collect { component -> [group: component.group, name: component.module, version: component.version] }
++                            }
++                            ids.each { id ->
+                                 dependencies << "{ \\"group\\": \\"${id.group}\\", \\"name\\": \\"${id.name}\\", \\"version\\": \\"${id.version}\\" }"
+                             }
+                         }
