@@ -34,7 +34,7 @@ function "output" {
 }
 
 group "default" {
-  targets = ["base", "ecosystem", "gradle"]
+  targets = ["base", "ecosystem", "gradle", "react-native"]
 }
 
 target "base" {
@@ -61,4 +61,19 @@ target "gradle" {
   args     = { JDK = jdk }
   tags     = tags("licensed-gradle-jdk${jdk}")
   output   = output("licensed-gradle-jdk${jdk}")
+}
+
+# The Android part of the React Native image, with the build tools React Native builds ask for, never published alone
+target "react-native-android" {
+  context  = "images/gradle"
+  contexts = { base = "target:base" }
+  args     = { JDK = "17", SDK_PACKAGES = "platforms;android-36 build-tools;36.0.0 platform-tools" }
+}
+
+# Node.js, CocoaPods and Android in one image, as the Podfile and the Gradle build of React Native apps run Node.js
+target "react-native" {
+  context  = "images/react-native"
+  contexts = { node = "target:node", cocoapods = "target:cocoapods", android = "target:react-native-android" }
+  tags     = tags("licensed-react-native")
+  output   = output("licensed-react-native")
 }

@@ -23,4 +23,7 @@ FROM base
 COPY --from=jdk /opt/java/openjdk /opt/java/openjdk
 COPY --from=sdk /opt/android-sdk /opt/android-sdk
 ENV JAVA_HOME=/opt/java/openjdk ANDROID_HOME=/opt/android-sdk
+# The Android Gradle plugin downloads the NDK of the ndkVersion a project sets, the cache keeps it between runs
+RUN ln -s /cache/android-sdk/ndk /opt/android-sdk/ndk
+ENV LICENSED_CACHE_LINKS=/opt/android-sdk/ndk
 ENV PATH=$JAVA_HOME/bin:$PATH

@@ -7,6 +7,9 @@ set -euo pipefail
 owner="$(stat -c %u:%g /src)"
 trap 'chown -R "$owner" /src /cache 2>/dev/null || true' EXIT
 
+# Folders an image links into the cache, such as the Android NDK, must exist before the tools write into them
+for link in ${LICENSED_CACHE_LINKS:-}; do mkdir -p "$(readlink "$link")"; done
+
 # Evaluated in this shell, so the variables it exports reach the command
 eval "${LICENSED_SETUP:-}"
 

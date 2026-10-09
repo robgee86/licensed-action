@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Installs the JavaScript packages from the lockfile of the project, development ones included since the Podfile and
+# the Gradle build run the React Native CLI, then the pods
+set -euo pipefail
+
+if [ -f yarn.lock ] && [ -f .yarnrc.yml ]; then
+  yarn install --immutable
+elif [ -f yarn.lock ]; then
+  yarn install --frozen-lockfile
+elif [ -f pnpm-lock.yaml ]; then
+  pnpm install --frozen-lockfile
+else
+  npm ci
+fi
+(cd ios && pod install)

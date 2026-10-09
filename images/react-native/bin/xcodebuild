@@ -1,0 +1,3 @@
+#!/bin/sh
+# Linux has no Xcode, React Native skips its minimum Xcode version check when xcodebuild prints nothing
+exit 1
