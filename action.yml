@@ -27,10 +27,22 @@ inputs:
   env:
     description: Names of environment variables of this step passed to the container, separated by spaces or newlines, such as a package registry token
     default: ""
+  free-disk-space:
+    description: Removes the toolchains of GitHub-hosted Linux runners that the images replace, such as the Android SDK, before the run, false when later steps of the job need them
+    default: "true"
 
 runs:
   using: composite
   steps:
+    # The images bring their own toolchains, so the runner's copies only take the disk the dependencies and caches need
+    - name: Free disk space
+      if: inputs.free-disk-space == 'true' && runner.environment == 'github-hosted' && runner.os == 'Linux'
+      shell: bash
+      run: |
+        echo "Free before: $(df -h --output=avail / | tail -1)"
+        sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
+        echo "Free after: $(df -h --output=avail / | tail -1)"
+
     - name: Set up Docker Buildx
       if: inputs.dockerfile != ''
       uses: docker/setup-buildx-action@v3
