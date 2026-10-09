@@ -24,6 +24,7 @@ The action restores a cache, runs `licensed-check` in the image of your ecosyste
 | `cache-key-files` | | Newline separated globs of the files whose content keys the cache, caching is off when empty |
 | `github-token` | | Token for private dependencies hosted on GitHub |
 | `env` | | Names of environment variables of the step passed to the container, separated by spaces or newlines, such as a package registry token |
+| `free-disk-space` | `true` | Removes the runner's Android SDK, .NET, Haskell and CodeQL before the run, on GitHub-hosted Linux runners with less than 40 GB free only. Set `false` when later steps of the job use them |
 
 ## Caching
 

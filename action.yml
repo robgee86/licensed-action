@@ -27,10 +27,24 @@ inputs:
   env:
     description: Names of environment variables of this step passed to the container, separated by spaces or newlines, such as a package registry token
     default: ""
+  free-disk-space:
+    description: Removes the toolchains of GitHub-hosted Linux runners that the images replace, such as the Android SDK, before the run, false when later steps of the job need them
+    default: "true"
 
 runs:
   using: composite
   steps:
+    # The images bring their own toolchains, so the runner's copies only take the disk the dependencies and caches need
+    # Removing them takes minutes, so it only runs on runners with less than 40 GB free, such as ubuntu-22.04
+    - name: Free disk space
+      if: inputs.free-disk-space == 'true' && runner.environment == 'github-hosted' && runner.os == 'Linux'
+      shell: bash
+      run: |
+        free="$(df -BG --output=avail / | tail -1 | tr -dc 0-9)"
+        if [ "$free" -ge 40 ]; then echo "${free} GB free, nothing to remove"; exit 0; fi
+        sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
+        echo "${free} GB free before, $(df -BG --output=avail / | tail -1 | tr -dc 0-9) GB after"
+
     - name: Set up Docker Buildx
       if: inputs.dockerfile != ''
       uses: docker/setup-buildx-action@v3
