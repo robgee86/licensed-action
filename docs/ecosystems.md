@@ -52,7 +52,12 @@ Pick the image of the JDK your build runs on: JDK 17 for the Android Gradle plug
 
 ## CocoaPods
 
-`pod install` downloads the pods licensed reads, and also integrates the Xcode project in the working tree.
+`pod install --deployment` downloads the pods licensed reads and checks the committed `Podfile.lock`, failing instead of rewriting it, as `npm ci` does with `package-lock.json`. It also integrates the Xcode project in the working tree.
+
+- A repository that pins CocoaPods and its plugins in a `Gemfile` installs and runs them, with the Ruby of its `.ruby-version`: set `mise install && BUNDLE_FROZEN=true bundle install && bundle exec pod install --deployment` as setup, and `cocoapods.command: bundle exec pod` in `.licensed.yml` so licensed runs the same CocoaPods. mise installs that Ruby into the cache, and its shims select it in the repository and the image's Ruby elsewhere.
+- licensed needs the cocoapods-dependencies-list plugin, which the image holds, patched, and loads into whichever CocoaPods licensed runs, so the `Gemfile` needs no entry for it.
+- Without a `Gemfile`, the CocoaPods of the image, 1.16.2, installs the pods, and as `Podfile.lock` records the CocoaPods version that wrote it, `--deployment` fails on a lockfile written by another version. Pin CocoaPods in a `Gemfile`, as most iOS projects do.
+- A `Podfile.lock` that `pod install` would change fails the run, for example when a podspec embeds the path of the checkout, which differs between machines. Such a lockfile also changes between developers, fix the podspec rather than the run.
 
 ## React Native
 
@@ -71,6 +76,8 @@ apps:
     cocoapods:
       targets:
         - MyApp
+      # The CocoaPods of the Gemfile, as the setup installs the pods with it
+      command: bundle exec pod
   - name: android
     root: android
     source_path: app
@@ -82,9 +89,9 @@ apps:
         - releaseRuntimeClasspath
 ```
 
-- The setup of the image, `licensed-react-native-setup`, installs the JavaScript packages from the lockfile, development ones included since the Podfile and the Gradle build run the React Native CLI, then runs `pod install`. A project that needs more prepends it, such as a CocoaPods plugin its Podfile loads: `gem install --no-document cocoapods-user-defined-build-types && licensed-react-native-setup`.
+- The setup of the image, `licensed-react-native-setup`, installs the JavaScript packages from the lockfile, development ones included since the Podfile and the Gradle build run the React Native CLI, then the pods with `pod install --deployment`, through the Ruby and the bundle of its `Gemfile` when it has one, see [CocoaPods](#cocoapods). A project that needs more prepends its own commands to it.
 - The pods React Native builds from `node_modules` are covered by the records of their npm packages, list them under `ignored`.
-- `pod install` keeps the pod versions of `ios/Podfile.lock`, but recomputes the checksums of the pods React Native evaluates from `node_modules`, which can differ from the ones written on a Mac, so a local run can leave `ios/Podfile.lock` changed in your working tree.
+- Some React Native podspecs embed the path of the checkout, such as the Hermes compiler path of `hermes-engine`, so their checksums in `ios/Podfile.lock` differ on every machine and `pod install --deployment` fails. Make them relative to the pods folder, with a patch-package patch until React Native does it.
 
 ## Swift
 

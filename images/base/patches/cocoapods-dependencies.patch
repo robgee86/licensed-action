@@ -1,0 +1,25 @@
+Podfiles can print while they are evaluated, which breaks parsing the JSON output of pod dependencies, and images preload
+files into that call, such as the loader that makes the patched plugin of the CocoaPods image available to any CocoaPods
+
+--- a/lib/licensed/sources/cocoapods.rb
++++ b/lib/licensed/sources/cocoapods.rb
+@@ -40,12 +40,17 @@
+         args = ["dependencies", "--include-path"]
+         args << "--targets=#{targets.join(",")}" if targets.any?
+ 
+-        output = Licensed::Shell.execute(*pod_command, *args, allow_failure: true)
++        # LICENSED_COCOAPODS_PRELOAD names Ruby files the image preloads into this call only, such as its plugin loader
++        env = {}
++        preload = ENV["LICENSED_COCOAPODS_PRELOAD"].to_s.split.map { |file| "-r#{file}" }
++        env["RUBYOPT"] = [ENV["RUBYOPT"], *preload].compact.join(" ") if preload.any?
++        output = Licensed::Shell.execute(*pod_command, *args, allow_failure: true, env: env)
+         if output.include? "Unknown command"
+           raise Licensed::Sources::Source::Error, MISSING_PLUGIN_MESSAGE
+         end
+ 
+-        JSON.parse(output)
++        # Podfiles can print while they are evaluated, as the React Native one does, the dependencies are the last JSON object line
++        JSON.parse(output.lines.reverse.find { |line| line.strip.match?(/\A\{.*\}\z/) } || output)
+       rescue JSON::ParserError => e
+         message = "Licensed was unable to parse the output from 'pod dependencies'. JSON Error: #{e.message}"
+         raise Licensed::Sources::Source::Error, message
