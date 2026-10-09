@@ -37,7 +37,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # BuildKit and the base images come through Google's Docker Hub mirror, as the shared runner IPs hit Docker Hub's anonymous pull limit
       - uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: image=mirror.gcr.io/moby/buildkit:buildx-stable-1
+          buildkitd-config-inline: |
+            [registry."docker.io"]
+              mirrors = ["mirror.gcr.io"]
 
       # Tagged with the version the action runs, so it runs these images instead of pulling published ones
       - name: Build the images of this commit
@@ -65,7 +71,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # BuildKit and the base images come through Google's Docker Hub mirror, as the shared runner IPs hit Docker Hub's anonymous pull limit
       - uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: image=mirror.gcr.io/moby/buildkit:buildx-stable-1
+          buildkitd-config-inline: |
+            [registry."docker.io"]
+              mirrors = ["mirror.gcr.io"]
 
       - name: Build the CocoaPods and React Native images
         env:
@@ -80,7 +92,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # BuildKit and the base images come through Google's Docker Hub mirror, as the shared runner IPs hit Docker Hub's anonymous pull limit
       - uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: image=mirror.gcr.io/moby/buildkit:buildx-stable-1
+          buildkitd-config-inline: |
+            [registry."docker.io"]
+              mirrors = ["mirror.gcr.io"]
 
       - name: Build the images of this commit
         run: |
