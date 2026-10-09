@@ -41,4 +41,4 @@ The base image applies these [patches](../images/base/patches) to licensed:
 - **CocoaPods output**: licensed reads the pods from the last JSON line of `pod dependencies`, past what a Podfile prints while it is evaluated, as the React Native one does.
 - **Record file names**: the colon of Gradle coordinates becomes `__` in record file names, such as `org.apache.commons__commons-lang3.dep.yml`, because Windows cannot create files containing a colon and Git for Windows refuses to check them out.
 
-The CocoaPods image also patches the cocoapods-dependencies-list plugin, which recursed forever on pod versions with ActiveSupport 7.
+The CocoaPods image also patches the cocoapods-dependencies-list plugin, which recursed forever on pod versions with ActiveSupport 7, and licensed preloads a loader into its `pod dependencies` call that makes this copy available to any CocoaPods, also one from a repository bundle. The image holds mise too, which installs the Ruby a repository pins in `.ruby-version` into the cache.
