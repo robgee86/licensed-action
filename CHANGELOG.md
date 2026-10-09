@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.0](https://github.com/robgee86/licensed-action/compare/v0.6.0...v0.7.0) (2026-10-09)
+
+
+### Features
+
+* free the runner disk space the images do not need ([#16](https://github.com/robgee86/licensed-action/issues/16)) ([40325dc](https://github.com/robgee86/licensed-action/commit/40325dc7ff9e4614cf7019917659ea2d42d7f823))
+
 ## [0.6.0](https://github.com/robgee86/licensed-action/compare/v0.5.0...v0.6.0) (2026-10-09)
 
 
