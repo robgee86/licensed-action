@@ -35,13 +35,15 @@ runs:
   using: composite
   steps:
     # The images bring their own toolchains, so the runner's copies only take the disk the dependencies and caches need
+    # Removing them takes minutes, so it only runs on runners with less than 40 GB free, such as ubuntu-22.04
     - name: Free disk space
       if: inputs.free-disk-space == 'true' && runner.environment == 'github-hosted' && runner.os == 'Linux'
       shell: bash
       run: |
-        echo "Free before: $(df -h --output=avail / | tail -1)"
+        free="$(df -BG --output=avail / | tail -1 | tr -dc 0-9)"
+        if [ "$free" -ge 40 ]; then echo "${free} GB free, nothing to remove"; exit 0; fi
         sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
-        echo "Free after: $(df -h --output=avail / | tail -1)"
+        echo "${free} GB free before, $(df -BG --output=avail / | tail -1 | tr -dc 0-9) GB after"
 
     - name: Set up Docker Buildx
       if: inputs.dockerfile != ''
