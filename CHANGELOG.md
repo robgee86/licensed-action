@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.6.0](https://github.com/robgee86/licensed-action/compare/v0.5.0...v0.6.0) (2026-10-09)
+
+
+### Features
+
+* install pods with --deployment and run the Ruby, CocoaPods and plugins a repository pins ([#13](https://github.com/robgee86/licensed-action/issues/13)) ([3145eff](https://github.com/robgee86/licensed-action/commit/3145effa489832a4744054813ec342db15bbef0d))
+
+
+### Bug Fixes
+
+* list the Gradle dependencies of Android builds with product flavors ([#15](https://github.com/robgee86/licensed-action/issues/15)) ([5be23f4](https://github.com/robgee86/licensed-action/commit/5be23f49ebbc369aaaa5ff0ce2e48ea2f89248c6))
+
 ## [0.5.0](https://github.com/robgee86/licensed-action/compare/v0.4.0...v0.5.0) (2026-10-09)
 
 
