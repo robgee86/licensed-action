@@ -38,6 +38,7 @@ The base image applies these [patches](../images/base/patches) to licensed:
 - **Gradle**: the configurations licensed copies keep the variant attributes, without which multi-module Android projects fail to resolve. Plain Java projects resolve as before.
 - **Swift**: `Package.resolved` format version 2, written by Swift 5.6 and later, is read.
 - **Gradle output**: licensed reads the dependencies from the last JSON line Gradle prints, past what builds and their plugins print at the quiet log level, takes the version of a local file such as `libs/foo-1.2.aar` from its name, and runs Gradle-License-Report 2.9 on Gradle 7 and later, as 2.0 fails on Android library modules and local aar files.
+- **Android product flavors**: when the library modules of an Android build with product flavors offer several artifacts and Gradle cannot pick one, licensed lists the classes jars, as the Android Gradle plugin does, and leaves out the modules of the build itself.
 - **CocoaPods output**: licensed reads the pods from the last JSON line of `pod dependencies`, past what a Podfile prints while it is evaluated, as the React Native one does.
 - **Record file names**: the colon of Gradle coordinates becomes `__` in record file names, such as `org.apache.commons__commons-lang3.dep.yml`, because Windows cannot create files containing a colon and Git for Windows refuses to check them out.
 
