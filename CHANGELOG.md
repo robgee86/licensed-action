@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.1](https://github.com/robgee86/licensed-action/compare/v0.7.0...v0.7.1) (2026-10-09)
+
+
+### Bug Fixes
+
+* pull the base images through a Docker Hub mirror in CI ([#18](https://github.com/robgee86/licensed-action/issues/18)) ([37bba54](https://github.com/robgee86/licensed-action/commit/37bba5405f737ec591c2e1938422d7019e122843))
+
 ## [0.7.0](https://github.com/robgee86/licensed-action/compare/v0.6.0...v0.7.0) (2026-10-09)
 
 
