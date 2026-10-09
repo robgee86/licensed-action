@@ -1,0 +1,14 @@
+Podfiles can print while they are evaluated, which breaks parsing the JSON output of pod dependencies
+
+--- a/lib/licensed/sources/cocoapods.rb
++++ b/lib/licensed/sources/cocoapods.rb
+@@ -45,7 +45,8 @@
+           raise Licensed::Sources::Source::Error, MISSING_PLUGIN_MESSAGE
+         end
+ 
+-        JSON.parse(output)
++        # Podfiles can print while they are evaluated, as the React Native one does, the dependencies are the last JSON object line
++        JSON.parse(output.lines.reverse.find { |line| line.strip.match?(/\A\{.*\}\z/) } || output)
+       rescue JSON::ParserError => e
+         message = "Licensed was unable to parse the output from 'pod dependencies'. JSON Error: #{e.message}"
+         raise Licensed::Sources::Source::Error, message
