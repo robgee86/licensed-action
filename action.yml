@@ -47,11 +47,11 @@ runs:
 
     - name: Set up Docker Buildx
       if: inputs.dockerfile != ''
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@v4
 
     - name: Build the licensed image
       if: inputs.dockerfile != ''
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@v7
       with:
         context: ${{ inputs.context }}
         file: ${{ inputs.dockerfile }}
@@ -63,7 +63,7 @@ runs:
     # A stale cache is safe to restore, the ecosystem tools refresh whatever no longer matches
     - name: Cache the tooling
       if: inputs.cache-key-files != ''
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ${{ runner.temp }}/licensed-cache
         key: licensed-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles(inputs.cache-key-files) }}
