@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Installs the JavaScript packages from the lockfile of the project, development ones included since the Podfile and
-# the Gradle build run the React Native CLI, then the pods from the committed Podfile.lock, which --deployment checks
+# the Gradle build run the React Native CLI, then the pods from the committed Podfile.lock, which the image checks and
+# restores after the setup
 set -euo pipefail
 
 if [ -f yarn.lock ] && [ -f .yarnrc.yml ]; then
@@ -17,7 +18,7 @@ fi
 if [ -f Gemfile ]; then
   mise install
   BUNDLE_FROZEN=true bundle install
-  (cd ios && bundle exec pod install --deployment)
+  (cd ios && bundle exec pod install)
 else
-  (cd ios && pod install --deployment)
+  (cd ios && pod install)
 fi

@@ -59,7 +59,7 @@ The job fails when a record is missing, outdated, left over from a removed depen
 | `node` | `npm ci --ignore-scripts --omit=dev` | `package-lock.json` | `node_modules` |
 | `python` | `UV_PROJECT_ENVIRONMENT=.venv uv sync --frozen --no-dev --no-install-project && uv pip install --python .venv pip` | `uv.lock` | `.venv` |
 | `gradle-jdk17`, `gradle-jdk21` | | `**/*.gradle*` | |
-| `cocoapods` | `pod install --deployment`, see [CocoaPods](docs/ecosystems.md#cocoapods) for a `Gemfile` | `Podfile.lock`, `Gemfile.lock` | `Pods` |
+| `cocoapods` | `pod install`, see [CocoaPods](docs/ecosystems.md#cocoapods) for a `Gemfile` | `Podfile.lock`, `Gemfile.lock` | `Pods` |
 | `swift` | `swift package resolve` | `Package.resolved` | `.build` |
 | `react-native` | set by the image | `yarn.lock`, `ios/Podfile.lock`, `Gemfile.lock`, `android/**/*.gradle*` | `node_modules`, `ios/Pods` |
 

@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Keeps every committed Podfile.lock as it is around the setup. pod install may only change podspec checksums, which
+# depend on the host, as with a podspec built from a folder listing. Any other change fails the run, so the pods,
+# versions, sources, Podfile and CocoaPods version must match the committed file, which is restored either way
+set -euo pipefail
+
+saved=/tmp/licensed-podfile-locks
+
+lockfiles() {
+  find . \( -name Pods -o -name node_modules -o -name .git \) -prune -o -name Podfile.lock -print | sort
+}
+
+restore() {
+  [ -f "$saved/list" ] || return 0
+  while read -r lockfile; do cp "$saved/$lockfile" "$lockfile"; done < "$saved/list"
+  # A Podfile.lock the setup created is not committed, so it goes too
+  lockfiles | { grep -vxF -f "$saved/list" || true; } | xargs -r rm -f
+  rm -rf "$saved"
+}
+
+case "${1:-}" in
+  save)
+    rm -rf "$saved"
+    mkdir -p "$saved"
+    lockfiles > "$saved/list"
+    while read -r lockfile; do
+      mkdir -p "$saved/$(dirname "$lockfile")"
+      cp "$lockfile" "$saved/$lockfile"
+    done < "$saved/list"
+    ;;
+  check)
+    status=0
+    while read -r lockfile; do
+      if ! /usr/bin/ruby /opt/licensed/cocoapods/compare-podfile-lock.rb "$saved/$lockfile" "$lockfile"; then
+        diff -u "$saved/$lockfile" "$lockfile" || true
+        status=1
+      fi
+    done < "$saved/list"
+    for lockfile in $(lockfiles | { grep -vxF -f "$saved/list" || true; }); do
+      echo "pod install wrote $lockfile, which is not committed, commit the Podfile.lock of the project"
+      status=1
+    done
+    restore
+    exit "$status"
+    ;;
+  restore)
+    restore
+    ;;
+  *)
+    echo "usage: licensed-setup-guard save|check|restore" >&2
+    exit 2
+    ;;
+esac
