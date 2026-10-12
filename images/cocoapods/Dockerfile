@@ -29,6 +29,7 @@ RUN set -ex; \
 COPY --from=gems /var/lib/gems /var/lib/gems
 COPY --from=gems /usr/local/bin/pod /usr/local/bin/pod
 COPY dependencies-list-loader.rb /opt/licensed/cocoapods/dependencies-list-loader.rb
+COPY deployment-checksums.rb /opt/licensed/cocoapods/deployment-checksums.rb
 
 # mise keeps its tools in the cache and its shims pick the version a repository declares, the image's Ruby otherwise
 ENV MISE_DATA_DIR=/cache/mise \
@@ -38,3 +39,5 @@ ENV MISE_DATA_DIR=/cache/mise \
 ENV PATH=/cache/mise/shims:$PATH
 # The container runs as root, which CocoaPods refuses by default
 ENV COCOAPODS_ALLOW_ROOT=1
+# Every Ruby preloads the check that lets pod install --deployment accept podspec checksums that only differ on this host
+ENV RUBYOPT=-r/opt/licensed/cocoapods/deployment-checksums.rb
