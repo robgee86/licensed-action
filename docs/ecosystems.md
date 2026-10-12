@@ -15,7 +15,7 @@ licensed runs the tools of each ecosystem, so each one has its image, built on t
 
 Up to v0.3 the images carried an `-action` suffix, such as `ghcr.io/robgee86/licensed-go-action`. A Dockerfile extending one of them needs the new name to receive updates.
 
-All but CocoaPods and React Native run on a fixture under [test](../test) in CI, as both need an Xcode project.
+Every ecosystem runs on a fixture under [test](../test) in CI. The React Native one is the app template of React Native, and the CocoaPods one needs no Xcode project.
 
 ## Go
 

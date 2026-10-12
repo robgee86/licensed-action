@@ -1,0 +1,8 @@
+# The pods of a project without an Xcode project, which the fixture does not need
+platform :ios, '15.0'
+install! 'cocoapods', :integrate_targets => false
+
+target 'Fixture' do
+  pod 'Listed', :path => 'LocalPods/Listed'
+  pod 'SwiftyJSON', '5.0.2'
+end

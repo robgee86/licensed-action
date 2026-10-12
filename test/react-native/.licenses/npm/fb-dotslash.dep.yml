@@ -1,0 +1,15 @@
+---
+name: fb-dotslash
+version: 0.5.8
+type: npm
+summary: Command-line tool to facilitate fetching an executable, caching it, and then
+  running it.
+homepage: https://dotslash-cli.com/
+license: other
+licenses:
+- sources: README.md
+  text: |-
+    DotSlash is licensed under both the MIT license and Apache-2.0 license; the
+    exact terms can be found in the [LICENSE-MIT](https://github.com/facebook/dotslash/blob/main/LICENSE-MIT) and
+    [LICENSE-APACHE](https://github.com/facebook/dotslash/blob/main/LICENSE-APACHE) files, respectively.
+notices: []

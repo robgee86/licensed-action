@@ -1,0 +1,9 @@
+---
+name: com.parse.bolts:bolts-tasks
+version: 1.4.0
+type: gradle
+license: other
+licenses:
+- sources: https://opensource.org/licenses/0BSD
+  text: ''
+notices: []

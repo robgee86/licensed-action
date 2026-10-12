@@ -1,0 +1,23 @@
+PODS:
+  - Listed (1.0.0)
+  - SwiftyJSON (5.0.2)
+
+DEPENDENCIES:
+  - Listed (from `LocalPods/Listed`)
+  - SwiftyJSON (= 5.0.2)
+
+SPEC REPOS:
+  trunk:
+    - SwiftyJSON
+
+EXTERNAL SOURCES:
+  Listed:
+    :path: LocalPods/Listed
+
+SPEC CHECKSUMS:
+  Listed: 0000000000000000000000000000000000000000
+  SwiftyJSON: f5b1bf1cd8dd53cd25887ac0eabcfd92301c6a5a
+
+PODFILE CHECKSUM: c03845bbf624cf46564e21d62527e9e31e5840af
+
+COCOAPODS: 1.16.2

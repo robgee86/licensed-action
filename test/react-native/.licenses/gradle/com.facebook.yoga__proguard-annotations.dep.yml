@@ -1,0 +1,9 @@
+---
+name: com.facebook.yoga:proguard-annotations
+version: 1.19.0
+type: gradle
+license: other
+licenses:
+- sources: https://opensource.org/licenses/MIT
+  text: ''
+notices: []

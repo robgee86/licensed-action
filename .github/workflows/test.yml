@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         runner: [ubuntu-24.04, ubuntu-24.04-arm]
-        ecosystem: [go, node, python, gradle-jdk17, gradle-jdk21, swift]
+        ecosystem: [go, node, python, gradle-jdk17, gradle-jdk21, swift, cocoapods, react-native]
         include:
           - ecosystem: go
             cache-key-files: test/go/go.sum
@@ -33,6 +33,18 @@ jobs:
           - ecosystem: swift
             setup: swift package resolve
             cache-key-files: test/swift/Package.resolved
+          # Its Podfile.lock holds a checksum for the local pod no host computes, as one written on another host would
+          - ecosystem: cocoapods
+            setup: pod install
+            cache-key-files: test/cocoapods/Podfile.lock
+            accepted-checksums: Listed
+          # The React Native app template, run through the setup of the image
+          - ecosystem: react-native
+            cache-key-files: |
+              test/react-native/package-lock.json
+              test/react-native/ios/Podfile.lock
+              test/react-native/Gemfile.lock
+              test/react-native/android/**/*.gradle*
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v7
@@ -61,32 +73,21 @@ jobs:
           setup: ${{ matrix.setup }}
           cache-key-files: ${{ matrix.cache-key-files }}
 
-  # Images without a fixture, as their ecosystems need an Xcode project, must still build on both platforms
-  images:
-    strategy:
-      fail-fast: false
-      matrix:
-        runner: [ubuntu-24.04, ubuntu-24.04-arm]
-    runs-on: ${{ matrix.runner }}
-    steps:
-      - uses: actions/checkout@v7
-
-      # BuildKit and the base images come through Google's Docker Hub mirror, as the shared runner IPs hit Docker Hub's anonymous pull limit
-      - uses: docker/setup-buildx-action@v4
-        with:
-          driver-opts: image=mirror.gcr.io/moby/buildkit:buildx-stable-1
-          buildkitd-config-inline: |
-            [registry."docker.io"]
-              mirrors = ["mirror.gcr.io"]
-
-      - name: Build the CocoaPods and React Native images
+      # The run leaves the fixture as committed, lockfiles included
+      - name: Check the fixture is unchanged
         env:
-          SCOPE: react-native-${{ matrix.runner }}
-        run: |
-          docker buildx bake \
-            --set "*.cache-from=type=gha,scope=$SCOPE" --set "*.cache-to=type=gha,scope=$SCOPE,mode=max" cocoapods react-native
+          FIXTURE: test/${{ matrix.fixture || matrix.ecosystem }}
+        run: git diff --exit-code -- "$FIXTURE" && test -z "$(git status --porcelain -- "$FIXTURE")"
 
-  # The action must fail on a missing or stale record and on an outdated NOTICE file
+      - name: Check the host-dependent checksums were accepted
+        if: matrix.accepted-checksums
+        env:
+          PODS: ${{ matrix.accepted-checksums }}
+        run: |
+          grep "Podspec checksums differ .*accepted as the pods match: $PODS" "$RUNNER_TEMP/licensed.log"
+
+  # The action must fail on a missing or stale record, on an outdated NOTICE file, and on a Podfile.lock that pod install
+  # changes beyond podspec checksums
   failures:
     runs-on: ubuntu-24.04
     steps:
@@ -104,6 +105,8 @@ jobs:
         run: |
           TAG="$(grep -m1 -oE 'v[0-9]+\.[0-9]+\.[0-9]+' action.yml)" docker buildx bake --load \
             --set "*.cache-from=type=gha,scope=go-ubuntu-24.04" go
+          TAG="$(grep -m1 -oE 'v[0-9]+\.[0-9]+\.[0-9]+' action.yml)" docker buildx bake --load \
+            --set "*.cache-from=type=gha,scope=cocoapods-ubuntu-24.04" cocoapods
 
       - name: Rename a record
         run: git mv test/go/.licenses/go/github.com/google/uuid.dep.yml test/go/.licenses/go/github.com/google/gone.dep.yml
@@ -127,8 +130,24 @@ jobs:
           ecosystem: go
           working-directory: test/go
 
-      - name: Expect both checks to fail
+      - name: Record another CocoaPods version in Podfile.lock
+        run: |
+          git reset --hard
+          sed -i 's/^COCOAPODS: .*/COCOAPODS: 1.15.2/' test/cocoapods/Podfile.lock
+
+      - id: podfile-lock
+        uses: ./
+        continue-on-error: true
+        with:
+          ecosystem: cocoapods
+          working-directory: test/cocoapods
+          setup: pod install
+
+      - name: Expect the three checks to fail, the edited Podfile.lock kept as it was
         env:
           RECORDS: ${{ steps.records.outcome }}
           NOTICES: ${{ steps.notices.outcome }}
-        run: test "$RECORDS" = failure && test "$NOTICES" = failure
+          PODFILE_LOCK: ${{ steps.podfile-lock.outcome }}
+        run: |
+          test "$RECORDS" = failure && test "$NOTICES" = failure && test "$PODFILE_LOCK" = failure
+          grep -x "COCOAPODS: 1.15.2" test/cocoapods/Podfile.lock
