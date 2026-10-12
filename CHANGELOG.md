@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.7.2](https://github.com/robgee86/licensed-action/compare/v0.7.1...v0.7.2) (2026-10-12)
+
+
+### Bug Fixes
+
+* run every action on Node 24 ([#20](https://github.com/robgee86/licensed-action/issues/20)) ([36be864](https://github.com/robgee86/licensed-action/commit/36be86441d9ab88ad2a962d27e316d341474bd17))
+
 ## [0.7.1](https://github.com/robgee86/licensed-action/compare/v0.7.0...v0.7.1) (2026-10-09)
 
 
