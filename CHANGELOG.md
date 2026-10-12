@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/robgee86/licensed-action/compare/v0.7.2...v0.8.0) (2026-10-12)
+
+
+### Features
+
+* accept podspec checksums that only differ on the host running the pods install ([#22](https://github.com/robgee86/licensed-action/issues/22)) ([03292e0](https://github.com/robgee86/licensed-action/commit/03292e00b11e580b5462088be107a7813a8cf7ed))
+
 ## [0.7.2](https://github.com/robgee86/licensed-action/compare/v0.7.1...v0.7.2) (2026-10-12)
 
 
