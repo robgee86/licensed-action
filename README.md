@@ -42,7 +42,7 @@ jobs:
   licenses:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: robgee86/licensed-action@v0
         with:
           ecosystem: go

@@ -18,7 +18,7 @@ jobs:
       minor: ${{ steps.release.outputs.minor }}
     steps:
       - id: release
-        uses: googleapis/release-please-action@v4
+        uses: googleapis/release-please-action@v5
 
   # Tags pushed with the workflow token trigger no workflow, so the release publishes its images here
   images:
@@ -33,7 +33,7 @@ jobs:
     needs: [release-please, images]
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Move the major and minor tags
         env:
