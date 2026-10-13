@@ -1,0 +1,13 @@
+root: true
+stale_records_action: error
+sources:
+  cocoapods: true
+cocoapods:
+  targets:
+    - Fixture
+# A local pod has no folder under Pods for licensed to read, as the development pods of React Native apps
+ignored:
+  cocoapods:
+    - Listed
+allowed:
+  - mit

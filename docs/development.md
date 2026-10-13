@@ -6,7 +6,7 @@
 
 ## Testing
 
-The [test](../.github/workflows/test.yml) workflow builds the images of each commit and runs the action on the fixtures under [test](../test), on amd64 and arm64. It also checks that a missing or stale record and an outdated NOTICE file fail the action.
+The [test](../.github/workflows/test.yml) workflow builds the images of each commit and runs the action on the fixtures under [test](../test), on amd64 and arm64. Each run must leave its fixture as committed. The CocoaPods fixture holds a `Podfile.lock` checksum for its local pod that no host computes, which the run must accept. The workflow also checks that a missing or stale record, an outdated NOTICE file, a `Podfile.lock` that `pod install` changes beyond the checksums of local pods, and a changed checksum of a pod from a spec repository fail the action.
 
 To run a fixture by hand, from the root of this repository:
 

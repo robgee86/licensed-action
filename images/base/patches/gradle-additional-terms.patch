@@ -1,0 +1,24 @@
+licensed ignores the additional_terms of the configuration for Gradle dependencies, and an artifact without a license URL gets no license file at all
+
+--- a/lib/licensed/sources/gradle.rb
++++ b/lib/licensed/sources/gradle.rb
+@@ -30,12 +30,14 @@
+           !path.to_s.empty?
+         end
+ 
+-        # Returns a Licensee::ProjectFiles::LicenseFile for the dependency
++        # Returns a Licensee::ProjectFiles::LicenseFile for the dependency, and the additional terms of the configuration
+         def project_files
+-          return [] if @url.nil?
+-
+-          license_data = self.class.retrieve_license(@url)
+-          Array(Licensee::ProjectFiles::LicenseFile.new(license_data, { uri: @url }))
++          files = []
++          unless @url.nil?
++            license_data = self.class.retrieve_license(@url)
++            files << Licensee::ProjectFiles::LicenseFile.new(license_data, { uri: @url })
++          end
++          files + additional_license_terms_files
+         end
+       end
+ 

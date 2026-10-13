@@ -1,0 +1,56 @@
+root: true
+shared_cache: true
+cache_path: .licenses
+stale_records_action: error
+
+apps:
+  - name: js
+    source_path: .
+    sources:
+      npm: true
+
+  - name: ios
+    source_path: ios
+    sources:
+      cocoapods: true
+    cocoapods:
+      targets:
+        - LicensedFixture
+      command: bundle exec pod
+
+  - name: android
+    root: android
+    source_path: app
+    cache_path: ../.licenses
+    sources:
+      gradle: true
+    gradle:
+      gradlew: gradlew
+      configurations:
+        - releaseRuntimeClasspath
+
+# The pods of a React Native app are built from node_modules, where the js app records their packages
+ignored:
+  cocoapods:
+    - "**/*"
+
+# The Maven artifacts of React Native and Hermes ship no license text, both are MIT, paths are from the android root
+additional_terms:
+  gradle:
+    com.facebook.react:react-android: ../.licenses/amendments/gradle/com.facebook.react__react-android/LICENSE
+    com.facebook.hermes:hermes-android: ../.licenses/amendments/gradle/com.facebook.hermes__hermes-android/LICENSE
+
+# The fixture checks that the image enumerates and records a React Native app, not a license policy
+allowed:
+  - mit
+  - apache-2.0
+  - bsd-2-clause
+  - bsd-3-clause
+  - isc
+  - 0bsd
+  - cc0-1.0
+  - cc-by-4.0
+  - blueoak-1.0.0
+  - python-2.0
+  - unlicense
+  - other
