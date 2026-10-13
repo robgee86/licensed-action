@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/robgee86/licensed-action/compare/v0.8.0...v0.9.0) (2026-10-13)
+
+
+### Features
+
+* check Podfile.lock around the setup and test the CocoaPods and React Native images ([#24](https://github.com/robgee86/licensed-action/issues/24)) ([5b34add](https://github.com/robgee86/licensed-action/commit/5b34add87febcc8908d613fe30fe2dc03de671d7))
+
 ## [0.8.0](https://github.com/robgee86/licensed-action/compare/v0.7.2...v0.8.0) (2026-10-12)
 
 
