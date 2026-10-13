@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Keeps every committed Podfile.lock as it is around the setup. pod install may only change podspec checksums, which
-# depend on the host, as with a podspec built from a folder listing. Any other change fails the run, so the pods,
-# versions, sources, Podfile and CocoaPods version must match the committed file, which is restored either way
+# Keeps every committed Podfile.lock as it is around the setup. pod install may only change the checksums of pods built
+# from a local path, which depend on the host, as with a podspec written from a folder listing. Any other change fails
+# the run, so the pods, versions, sources, registry checksums, Podfile and CocoaPods version must match the committed
+# file, which is restored either way
 set -euo pipefail
 
 saved=/tmp/licensed-podfile-locks

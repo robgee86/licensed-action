@@ -87,7 +87,7 @@ jobs:
           grep "Podspec checksums differ .*accepted as the pods match: $PODS" "$RUNNER_TEMP/licensed.log"
 
   # The action must fail on a missing or stale record, on an outdated NOTICE file, and on a Podfile.lock that pod install
-  # changes beyond podspec checksums
+  # changes beyond the checksums of pods built from a local path
   failures:
     runs-on: ubuntu-24.04
     steps:
@@ -143,11 +143,29 @@ jobs:
           working-directory: test/cocoapods
           setup: pod install
 
-      - name: Expect the three checks to fail, the edited Podfile.lock kept as it was
+      - name: Check the edited Podfile.lock was kept as it was
+        run: |
+          grep -x "COCOAPODS: 1.15.2" test/cocoapods/Podfile.lock
+
+      - name: Give a pod from the spec repository another checksum
+        run: |
+          git reset --hard
+          sed -i 's/^  SwiftyJSON: .*/  SwiftyJSON: 1111111111111111111111111111111111111111/' test/cocoapods/Podfile.lock
+
+      - id: registry-checksum
+        uses: ./
+        continue-on-error: true
+        with:
+          ecosystem: cocoapods
+          working-directory: test/cocoapods
+          setup: pod install
+
+      - name: Expect the four checks to fail
         env:
           RECORDS: ${{ steps.records.outcome }}
           NOTICES: ${{ steps.notices.outcome }}
           PODFILE_LOCK: ${{ steps.podfile-lock.outcome }}
+          REGISTRY_CHECKSUM: ${{ steps.registry-checksum.outcome }}
         run: |
-          test "$RECORDS" = failure && test "$NOTICES" = failure && test "$PODFILE_LOCK" = failure
-          grep -x "COCOAPODS: 1.15.2" test/cocoapods/Podfile.lock
+          test "$RECORDS" = failure && test "$NOTICES" = failure
+          test "$PODFILE_LOCK" = failure && test "$REGISTRY_CHECKSUM" = failure

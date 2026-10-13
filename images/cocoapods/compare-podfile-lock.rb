@@ -1,5 +1,6 @@
-# Compares a committed Podfile.lock with the one pod install wrote: only the checksums of pods the committed file
-# already lists may differ, they are reported and accepted, any other difference fails
+# Compares a committed Podfile.lock with the one pod install wrote. Only the checksums of pods built from a local path,
+# its EXTERNAL SOURCES, may differ, as their podspecs can depend on the host, they are reported and accepted. The
+# checksums of pods from spec repositories must match exactly, and any other difference fails
 require "yaml"
 
 # CocoaPods writes some keys as symbols, such as the :path of a local pod
@@ -29,6 +30,13 @@ unless without_checksums(committed) == without_checksums(written)
 end
 
 changed = checksums(committed).reject { |name, checksum| checksums(written)[name] == checksum }.keys
+from_repositories = changed - committed.fetch("EXTERNAL SOURCES", {}).keys
+unless from_repositories.empty?
+  warn "The podspec checksums of #{from_repositories.join(", ")}, from spec repositories, differ from #{written_path}: " \
+       "run pod install and commit the lockfile"
+  exit 1
+end
+
 unless changed.empty?
   warn "Podspec checksums differ from #{written_path} on this host, accepted as the pods match: #{changed.join(", ")}"
 end
